@@ -1,5 +1,5 @@
 [package]
-name = "rangex"
+name = "forangex"
 version = "0.3.0"
 edition = "2021"
 authors = ["Pegasus.Cadence <pegasus.cadence@gmail.com>"]
