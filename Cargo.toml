@@ -1,0 +1,16 @@
+[package]
+name = "rangex"
+version = "0.3.0"
+edition = "2021"
+authors = ["Pegasus.Cadence <pegasus.cadence@gmail.com>"]
+description = "Range maker for foreward/backward and step may be larger than 1 (or less than -1), plus index support"
+license = "MIT/Apache-2.0"
+repository = "https://github.com/pegasus.cadence/rangex.git"
+
+[lib]
+name = "rangex"
+path = "src/lib.rs"
+
+[[example]]
+name = "range_demo"
+path = "examples/range_demo.rs"
