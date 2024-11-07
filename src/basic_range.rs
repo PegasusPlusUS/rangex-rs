@@ -340,6 +340,9 @@ macro_rules! range_inclusive {
     ($start:expr, $end:expr) => {
         $start..=$end
     };
+    ($typename:ty, $start:expr, $end:expr) => {
+        range_inclusive!($typename, $start, $end, 1)
+    };
     ($typename:ty, $start:expr, $end:expr, $step:expr) => {
         BasicRange::<$typename>::new($start, $end, $step, true)
     };

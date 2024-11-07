@@ -73,9 +73,6 @@ where
 
 #[macro_export]
 macro_rules! indexed_range_exclusive {
-    ($start:expr, $end:expr) => {
-        $start..$end
-    };
     ($typename:ty, $start:expr, $end:expr) => {
         indexed_range_exclusive!($typename, $start, $end, 1)
     };
@@ -86,9 +83,6 @@ macro_rules! indexed_range_exclusive {
 
 #[macro_export]
 macro_rules! indexed_range_inclusive {
-    ($start:expr, $end:expr) => {
-        $start..=$end
-    };
     ($typename:ty, $start:expr, $end:expr) => {
         indexed_range_inclusive!($typename, $start, $end, 1)
     };
