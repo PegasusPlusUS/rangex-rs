@@ -92,7 +92,7 @@ macro_rules! indexed_range_inclusive {
 }
 
 #[cfg(test)]
-fn verify_indexed_range<T>(expect:& Vec<T>, r: IndexedRange<T>)
+fn verify_indexed_range<T>(expect: &Vec<T>, r: IndexedRange<T>)
 where
     T: IteratorOps + PartialEq + std::fmt::Debug,
     IndexedRange<T>: IntoIterator<Item = (usize, T)>, // Ensures IndexedRange<T> can be converted into an iterator

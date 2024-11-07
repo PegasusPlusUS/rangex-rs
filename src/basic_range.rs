@@ -292,12 +292,11 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let stop;
-        if self.step > T::Step::zero() {
-            stop = self.current >= self.end;
+        let stop = if self.step > T::Step::zero() {
+            self.current >= self.end
         } else {
-            stop = self.current <= self.end;
-        }
+            self.current <= self.end
+        };
 
         if stop {
             None
