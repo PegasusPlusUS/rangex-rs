@@ -1,0 +1,47 @@
+name: Rust project CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build, Test, and Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Run cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --verbose
+
+      - name: Run cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --verbose
+
+      - name: Run cargo tarpaulin
+        uses: actions-rs/tarpaulin@v0.1
+        with:
+          version: '0.15.0'
+          args: '-- --test-threads 1'
+
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v1.0.2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
