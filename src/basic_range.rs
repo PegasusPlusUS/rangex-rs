@@ -6,15 +6,20 @@ pub trait StepOps:
     + Mul<Output = Self>
     + Rem<Output = Self>
     + Div<Output = Self>
+    + Sub<Output = Self>
     + Copy
     + PartialOrd
     + PartialEq
     + std::fmt::Debug
     + std::fmt::Display
 {
-    fn zero() -> Self;
-    fn one() -> Self;
-    fn negative_one() -> Self;
+    fn zero() -> Self; // { 0 as Self }
+    fn one() -> Self; // { 1 }
+    fn negative_one() -> Self; // { -1 }
+    fn rem_euclid(self, rhs: Self) -> Self { self % rhs }
+    fn floor(self) -> Self { self }
+    fn abs(self) -> Self { if self < Self::zero() { Self::zero() - self } else { self } }
+    //fn from_const(v: f64) -> Self { v as Self }
 }
 
 impl StepOps for i128 {
@@ -73,6 +78,20 @@ impl StepOps for i8 {
     }
 }
 
+impl StepOps for f32 {
+    fn zero() -> Self { 0.0 }
+    fn one() -> Self { 1.0 }
+    fn negative_one() -> Self { -1.0 }
+    fn floor(self) -> Self { self.floor() }
+}
+
+impl StepOps for f64 {
+    fn zero() -> Self { 0.0 }
+    fn one() -> Self { 1.0 }
+    fn negative_one() -> Self { -1.0 }
+    fn floor(self) -> Self { self.floor() }
+}
+
 pub trait IteratorOps:
     Add<Output = Self>
     + Sub<Output = Self>
@@ -88,8 +107,8 @@ pub trait IteratorOps:
     + std::fmt::Display
 {
     type Step: StepOps;
-    fn to_step(self) -> Self::Step;
-    fn from_step(step: Self::Step) -> Self; // Conversion back to original type
+    fn to_step(self) -> Self::Step; // { self }
+    fn from_step(step: Self::Step) -> Self; // { step } // Conversion back to original type
 }
 
 pub trait SizeCompatible<T> {}
@@ -218,6 +237,30 @@ impl IteratorOps for i128 {
     }
 }
 
+impl IteratorOps for f32 {
+    type Step = f32;
+
+    fn to_step(self) -> Self::Step {
+        self
+    }
+
+    fn from_step(step: Self::Step) -> Self {
+        step
+    }
+}
+
+impl IteratorOps for f64 {
+    type Step = f64;
+
+    fn to_step(self) -> Self::Step {
+        self
+    }
+
+    fn from_step(step: Self::Step) -> Self {
+        step
+    }
+}
+
 pub struct BasicRange<T>
 where
     T: IteratorOps,
@@ -233,31 +276,27 @@ where
     T::Step: std::fmt::Display,
 {
     pub fn new(start: T, mut end: T, step: T::Step, mut inclusive: bool) -> Self {
-        let mut range_size;
         if step == T::Step::zero() {
             panic!("Step can't be 0");
-        } else if step > T::Step::zero() {
-            range_size = end - start;
-        } else {
-            range_size = start - end;
         }
 
-        //println!("Original start:{} end:{} step:{} range_size:{} inclusive:{}", start, end, step, range_size, inclusive);
+        let range_size = if step > T::Step::zero() {
+            end - start
+        } else {
+            start - end
+        };
+
         let on_step;
         if start != end {
             if range_size > T::from_step(T::Step::zero()) {
                 if step < T::Step::negative_one() || T::Step::one() < step {
-                    let mut range_size_as_step_type = T::to_step(range_size);
-                    on_step = T::Step::zero() == range_size_as_step_type % step;
-                    //println!("Calculate on_step:{} {} {}", on_step, range_size_as_step_type, step);
-                    range_size_as_step_type = range_size_as_step_type / step * step;
-                    range_size = T::from_step(range_size_as_step_type);
-                    end = start
-                        + if start < end {
-                            range_size
-                        } else {
-                            T::from_step(T::Step::zero()) - range_size
-                        };
+                    // Use specialized functions based on type
+                    (end, on_step) = Self::calculate_stop_and_steps(start, end, range_size, step)
+                    //} else {
+                    //    Self::calculate_integer_steps(start, end, range_size, step)
+                    //}
+                    ;
+                    println!("end is {}, zero is {}, step is {}, on_step is {}", end, T::Step::zero(), step, on_step);
                 } else {
                     on_step = true;
                 }
@@ -265,14 +304,35 @@ where
                 on_step = true;
                 inclusive = false;
             }
-            //println!("Adjusted start:{} end:{} step:{} on_step:{}", start, end, step, on_step);
 
             if inclusive || !on_step {
-                end += T::from_step(step);
-                //println!("Adjusted by inclusive end:{}", end);
+                println!("end is {}, zero is {}, step is {}, on_step is {}", end, T::Step::zero(), step, on_step);
+                end = T::from_step(end.to_step() + step);
+                println!("end is {}, zero is {}, step is {}, on_step is {}", end, T::Step::zero(), step, on_step);
             }
         }
+        
         BasicRange { start, end, step }
+    }
+
+    fn calculate_stop_and_steps(start: T, end: T, range_size: T, step: T::Step) -> (T, bool)
+    where
+        T::Step: StepOps
+    {
+        //println!("start {} end {} range_size {} step {}", start, end, range_size, step);
+        let range_size_as_step = T::to_step(range_size);
+        let positive_step :T::Step = if step < T::Step::zero() { T::Step::zero() - step } else { step};
+        let steps = (range_size_as_step / positive_step).floor();
+        //println!("range_size_as_step {} steps {}", range_size_as_step, steps);
+        let on_step = T::Step::zero() == range_size_as_step.rem_euclid(step);
+        let new_range_size = T::from_step(steps * positive_step);
+        let new_end : T::Step = start.to_step() + if start < end {
+            new_range_size.to_step()
+        } else {
+            T::Step::zero() - new_range_size.to_step()
+        };
+        //println!("new end {}", new_end);
+        (T::from_step(new_end), on_step)
     }
 }
 
@@ -292,6 +352,7 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
+        //println!("Current {}, step {}, end {}", self.current, self.step, self.end);
         let stop = if self.step > T::Step::zero() {
             self.current >= self.end
         } else {
@@ -302,7 +363,7 @@ where
             None
         } else {
             let result = self.current;
-            self.current += T::from_step(self.step);
+            self.current = T::from_step(self.current.to_step() + self.step);
             Some(result)
         }
     }
@@ -328,6 +389,9 @@ where
 macro_rules! range_exclusive {
     ($start:expr, $end:expr) => {
         $start..$end
+    };
+    ($typename:ty, $start:expr, $end:expr) => {
+        range_exclusive!($typename, $start, $end, 1)
     };
     ($typename:ty, $start:expr, $end:expr, $step:expr) => {
         BasicRange::<$typename>::new($start, $end, $step, false)
@@ -389,6 +453,15 @@ mod main_test {
     }
 
     #[test]
+    fn basic_1_float() {
+        let expect = vec![0.0, 1.0, 2.0];
+        verify_range(expect, BasicRange::new(0.0, 3.0, 1.0, false));
+
+        let expect = vec![0.0, 1.0, 2.0];
+        verify_range(expect, BasicRange::new(0.0, 2.0, 1.0, true));
+    }
+
+    #[test]
     fn basic_2() {
         let expect = vec![0, 1, 2];
         verify_std_range(expect, range_exclusive!(0, 3));
@@ -405,6 +478,23 @@ mod main_test {
         let expect = vec![3, 2, 1];
         verify_range(expect, range_inclusive!(i32, 3, 1, -1));
     }
+    #[test]
+    fn basic_2_float() {
+        let expect = vec![0.0, 1.0, 2.0];
+        verify_std_range(expect, range_exclusive!(f32, 0.0, 3.0, 1.0));
+
+        let expect = vec![0.0, 1.0, 2.0];
+        verify_std_range(expect, range_inclusive!(f32, 0.0, 2.0, 1.0));
+
+        let expect = vec![3.0, 2.0, 1.0];
+        verify_range(expect, BasicRange::new(3.0, 0.0, -1.0, false));
+
+        let expect = vec![3.0, 2.0, 1.0];
+        verify_range(expect, range_exclusive!(f32, 3.0, 0.0, -1.0));
+
+        let expect = vec![3.0, 2.0, 1.0];
+        verify_range(expect, range_inclusive!(f32, 3.0, 1.0, -1.0));
+    }
     //}
 
     #[test]
@@ -418,7 +508,17 @@ mod main_test {
         let mut s = 0;
         let elements = vec![10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
         for (index, element) in elements.iter().enumerate() {
-            println!("Index: {}, Element: {}", index, element);
+            //println!("Index: {}, Element: {}", index, element);
+            assert!(index < elements.len());
+            assert_eq!(*element, elements[index]);
+            s += *element;
+        }
+        assert_eq!(s, elements.iter().sum());
+
+        let mut s = 0.0;
+        let elements = vec![10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0];
+        for (index, element) in elements.iter().enumerate() {
+            //println!("Index: {}, Element: {}", index, element);
             assert!(index < elements.len());
             assert_eq!(*element, elements[index]);
             s += *element;
@@ -448,7 +548,22 @@ mod main_test {
                 verify_range(expect, BasicRange::new(0, 1, -1, inclusive > 0));
             }
         }
+        #[test]
+        fn void_range_prop_float() {
+            for inclusive in 0..=1 {
+                let expect = vec![];
+                verify_range(expect, BasicRange::new(0.0, 0.0, -2.0, inclusive > 0));
 
+                let expect = vec![];
+                verify_range(expect, BasicRange::new(0.0, 0.0, 2.0, inclusive > 0));
+
+                let expect = vec![];
+                verify_range(expect, BasicRange::new(3.0, 0.0, 1.0, inclusive > 0));
+
+                let expect = vec![];
+                verify_range(expect, BasicRange::new(0.0, 1.0, -1.0, inclusive > 0));
+            }
+        }
         #[test]
         //fn not_on_step_1_prop(inclusive in 0..=1) {
         fn not_on_step_1() {
@@ -458,6 +573,14 @@ mod main_test {
             }
         }
         //}
+        #[test]
+        //fn not_on_step_1_prop(inclusive in 0..=1) {
+        fn not_on_step_1_float() {
+            for inclusive in 0..=1 {
+                let expect = vec![0.0, 2.0, 4.0];
+                verify_range(expect, BasicRange::new(0.0, 5.0, 2.0, inclusive > 0));
+            }
+        }
         #[test]
         fn not_on_step_2() {
             for inclusive in 0..=1 {
@@ -472,6 +595,20 @@ mod main_test {
                 );
             }
         }
+        #[test]
+        fn not_on_step_2_float() {
+            for inclusive in 0..=1 {
+                let expect = vec![0.0, 2.0, 4.0];
+                verify_std_range(
+                    expect,
+                    if 0 == inclusive {
+                        range_exclusive!(f32, 0.0, 5.0, 2.0)
+                    } else {
+                        range_inclusive!(f32, 0.0, 5.0, 2.0)
+                    },
+                );
+            }
+        }
 
         #[test]
         fn not_on_step_3() {
@@ -479,8 +616,23 @@ mod main_test {
                 let expect = vec![5, 3];
                 verify_range(expect, BasicRange::new(5, 2, -2, inclusive > 0));
             }
+            for inclusive in 0..=1 {
+                let expect = vec![5, 3];
+                verify_range(expect, BasicRange::<u32>::new(5, 2, -2, inclusive > 0));
+            }
         }
 
+        #[test]
+        fn not_on_step_3_float() {
+            for inclusive in 0..=1 {
+                let expect = vec![5.0, 3.0];
+                verify_range(expect, BasicRange::<f32>::new(5.0, 2.0, -2.0, inclusive > 0));
+            }
+            for inclusive in 0..=1 {
+                let expect = vec![5.0, 3.0];
+                verify_range(expect, BasicRange::<f64>::new(5.0, 2.0, -2.0, inclusive > 0));
+            }
+        }
         #[test]
         fn not_on_step_4() {
             for inclusive in 0..=1 {
@@ -491,6 +643,21 @@ mod main_test {
                         range_inclusive!(i32, 5, 2, -2)
                     } else {
                         range_exclusive!(i32, 5, 2, -2)
+                    },
+                );
+            }
+        }
+
+        #[test]
+        fn not_on_step_4_float() {
+            for inclusive in 0..=1 {
+                let expect = vec![5.0, 3.0];
+                verify_range(
+                    expect,
+                    if inclusive > 0 {
+                        range_inclusive!(f32, 5.0, 2.0, -2.0)
+                    } else {
+                        range_exclusive!(f32, 5.0, 2.0, -2.0)
                     },
                 );
             }
@@ -516,13 +683,23 @@ mod main_test {
 
             if !skip_fail {
                 // Infinity or panic
-                for value in BasicRange::new(0, 1, 0, false) {
-                    println!("{}", value);
+                for _value in BasicRange::new(0, 1, 0, false) {
+                    //println!("{}", _value);
                 }
 
                 // Infinity or panic
-                for value in BasicRange::new(0, 1, 0, true) {
-                    println!("{}", value);
+                for _value in BasicRange::new(0, 1, 0, true) {
+                    //println!("{}", _value);
+                }
+
+                // Infinity or panic
+                for _value in BasicRange::new(0.0, 1.0, 0.0, false) {
+                    //println!("{}", _value);
+                }
+
+                // Infinity or panic
+                for _value in BasicRange::new(0.0, 1.0, 0.0, true) {
+                    //println!("{}", _value);
                 }
             }
         }
