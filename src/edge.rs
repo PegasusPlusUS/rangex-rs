@@ -1,9 +1,8 @@
-use crate::basic_range::*;
-use crate::indexed_range::*;
-
 #[cfg(test)]
 mod edge_test {
-
+use crate::basic_range::*;
+use crate::indexed_range::*;
+    
 #[test]
 fn std_u8_exclusive_edge_can_through_full_u8() {
     // std for in zig only allow usize
@@ -22,16 +21,16 @@ fn std_u8_exclusive_edge_can_through_full_u8() {
     }
     assert_eq!(index, 1 + END as usize - START as usize);
 
-    const MINi8:i8 = -128;
-    const MAXi8:i8 = 127;
+    const MINI8:i8 = -128;
+    const MAXI8:i8 = 127;
     index = 0;
-    for i in MINi8..=MAXi8 {
-        assert!(MINi8 <= i);
-        assert!(i <= MAXi8);
+    for i in MINI8..=MAXI8 {
+        assert!(MINI8 <= i);
+        assert!(i <= MAXI8);
         index += 1;
     }
     // Using extended signed type to calculate, avoiding overflow
-    assert_eq!(index, (1 + MAXi8 as i16 - MINi8 as i16) as usize);
+    assert_eq!(index, (1 + MAXI8 as i16 - MINI8 as i16) as usize);
 }
 
 fn get_range_end_mark_char(inclusive: bool) -> char {
@@ -50,27 +49,25 @@ fn get_range_begin_mark_char(inclusive: bool) -> char {
     }
 }
 
-use crate::basic_range::*;
-use crate::indexed_range::*;
 use std::any::type_name;
 use std::ops::Rem;
 use num::zero;
 
-fn intEdgeWithStep<T: crate::basic_range::IteratorOps>(inclusive: bool, step: T::Step) {
-    let intMin: T = T::min();
-    let intMax: T = T::max();
-    let range_size: T::ExtendedStep = intMax.to_extended_step() - intMin.to_extended_step();
+fn int_edge_with_step<T: crate::basic_range::IteratorOps>(inclusive: bool, step: T::Step) {
+    let int_min: T = T::min();
+    let int_max: T = T::max();
+    let range_size: T::ExtendedStep = int_max.to_extended_step() - int_min.to_extended_step();
     let steps: T::ExtendedStep = (range_size / T::from_step(step).to_extended_step()).floor();
     let on_step = range_size.rem(T::from_step(step).to_extended_step()) == (steps - steps);
     let debug_print = false;
     if true
     {
-        print!("{} while range [{}, {}{}, step {}", type_name::<T>(), intMin, intMax, get_range_end_mark_char(inclusive), step);
+        print!("{} while range [{}, {}{}, step {}", type_name::<T>(), int_min, int_max, get_range_end_mark_char(inclusive), step);
         if debug_print {
             println!(" range_size {}, steps {}, on_step {}:", range_size, steps, on_step);
         }
         println!("");
-        let range = IndexedRange::<T>::new(intMin, intMax, step, inclusive);
+        let range = IndexedRange::<T>::new(int_min, int_max, step, inclusive);
         let mut index: usize = 0;
         for (i, _) in range {
             assert_eq!(i, index);
@@ -95,8 +92,8 @@ fn intEdgeWithStep<T: crate::basic_range::IteratorOps>(inclusive: bool, step: T:
     // Backward
     if true
     {
-        print!("Backward {} while range {}{}, {}], step: -{}:\n", type_name::<T>(), get_range_begin_mark_char(inclusive), intMin, intMax, step);
-        let range = IndexedRange::<T>::new(intMax, intMin, zero::<T::Step>() - step, inclusive);
+        print!("Backward {} while range {}{}, {}], step: -{}:\n", type_name::<T>(), get_range_begin_mark_char(inclusive), int_min, int_max, step);
+        let range = IndexedRange::<T>::new(int_max, int_min, zero::<T::Step>() - step, inclusive);
         let mut index: usize = 0;
         for (i, _) in range {
             assert_eq!(i, index);
@@ -118,22 +115,43 @@ fn intEdgeWithStep<T: crate::basic_range::IteratorOps>(inclusive: bool, step: T:
 
 #[test]
 fn test_i8_exclusive_edge() {
-    intEdgeWithStep::<i8>(false, 1);
+    int_edge_with_step::<i8>(false, 1);
 }
 
 #[test]
 fn test_i8_inclusive_edge() {
-    intEdgeWithStep::<i8>(true, 1);
+    int_edge_with_step::<i8>(true, 1);
 }
 
 #[test]
 fn test_u8_exclusive_edge() {
-    intEdgeWithStep::<u8>(false, 1);
+    int_edge_with_step::<u8>(false, 1);
 }
 
 #[test]
 fn test_u8_inclusive_edge() {
-    intEdgeWithStep::<u8>(true, 1);
+    int_edge_with_step::<u8>(true, 1);
+
+}
+
+#[test]
+fn test_i16_exclusive_edge() {
+    int_edge_with_step::<i16>(false, 1);
+}
+
+#[test]
+fn test_i16_inclusive_edge() {
+    int_edge_with_step::<i16>(true, 1);
+}
+
+#[test]
+fn test_u16_exclusive_edge() {
+    int_edge_with_step::<u16>(false, 1);
+}
+
+#[test]
+fn test_u16_inclusive_edge() {
+    int_edge_with_step::<u16>(true, 1);
 
 }
 
