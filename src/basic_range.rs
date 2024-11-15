@@ -754,7 +754,9 @@ where
 
             if !self.inclusive_or_not_on_step {
                 if stop {
-                    println!("Stop!");
+                    if DEBUG_PRINT {
+                        println!("Stop!");
+                    }
                     return None
                 }
             } else {

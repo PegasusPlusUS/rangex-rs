@@ -75,8 +75,9 @@ fn int_edge_with_step<T: crate::basic_range::IteratorOps>(inclusive: bool, step:
             if inclusive || !on_step {
                 assert!(i <= steps.to_usize());
             } else {
-                if i + 3 > steps.to_usize() {
+                if i + 2 > steps.to_usize() {
                     println!("i: {}, steps:{}, {}", i, steps, steps.to_usize());
+                    
                 }
                 assert!(i < steps.to_usize());
             }
@@ -119,8 +120,29 @@ fn test_i8_exclusive_edge() {
 }
 
 #[test]
+fn test_i8_exclusive_edge_not_on_step() {
+    int_edge_with_step::<i8>(false, 3);
+}
+
+#[test]
+fn test_i8_exclusive_edge_on_step() {
+    int_edge_with_step::<i8>(false, 5);
+}
+
+#[test]
 fn test_i8_inclusive_edge() {
     int_edge_with_step::<i8>(true, 1);
+}
+
+
+#[test]
+fn test_i8_inclusive_edge_not_on_step() {
+    int_edge_with_step::<i8>(true, 3);
+}
+
+#[test]
+fn test_i8_inclusive_edge_on_step() {
+    int_edge_with_step::<i8>(true, 5);
 }
 
 #[test]
@@ -129,8 +151,30 @@ fn test_u8_exclusive_edge() {
 }
 
 #[test]
+fn test_u8_exclusive_edge_not_on_step() {
+    int_edge_with_step::<u8>(false, 3);
+}
+
+#[test]
+fn test_u8_exclusive_edge_on_step() {
+    int_edge_with_step::<u8>(false, 5);
+}
+
+#[test]
 fn test_u8_inclusive_edge() {
     int_edge_with_step::<u8>(true, 1);
+
+}
+
+#[test]
+fn test_u8_inclusive_edge_not_on_step() {
+    int_edge_with_step::<u8>(true, 3);
+
+}
+
+#[test]
+fn test_u8_inclusive_edge_on_step() {
+    int_edge_with_step::<u8>(true, 5);
 
 }
 
