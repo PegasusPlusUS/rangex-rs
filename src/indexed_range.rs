@@ -65,6 +65,9 @@ where
                 current: self.basic_range.start,
                 end: self.basic_range.end,
                 step: self.basic_range.step,
+
+                inclusive_or_not_on_step: self.basic_range.inclusive_or_not_on_step,
+                invalid_range: self.basic_range.invalid_range,
             },
             index: 0,
         }
@@ -166,11 +169,13 @@ mod main_test {
     //fn void_range_prop(inclusive in 0..=1) {
     fn void_range_prop() {
         for inclusive in 0..=1 {
-            let expect = vec![];
-            verify_indexed_range(&expect, IndexedRange::new(0, 0, -2, inclusive > 0));
+            let expect_none = vec![];
+            let expect_once = vec![0];
+            verify_indexed_range(if inclusive > 0 { &expect_once } else { &expect_none }, IndexedRange::new(0, 0, -2, inclusive > 0));
 
-            let expect = vec![];
-            verify_indexed_range(&expect, IndexedRange::new(0, 0, 2, inclusive > 0));
+            let expect_none = vec![];
+            let expect_once = vec![0];
+            verify_indexed_range(if inclusive > 0 { &expect_once } else { &expect_none }, IndexedRange::new(0, 0, 2, inclusive > 0));
 
             let expect = vec![];
             verify_indexed_range(&expect, IndexedRange::new(3, 0, 1, inclusive > 0));

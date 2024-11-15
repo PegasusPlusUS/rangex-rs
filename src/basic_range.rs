@@ -11,62 +11,65 @@ pub trait StepOps:
     + std::fmt::Debug
     + std::fmt::Display
 {
-    fn negative_one() -> Self; // { zero::<T>() - one() }
+    fn negative_one() -> Self { Self::zero() - Self::one() }
     fn floor(self) -> Self { self }
     fn abs(self) -> Self { if self < Self::zero() { Self::zero() - self } else { self } }
+    fn to_usize(self) -> usize;
 }
 
 impl StepOps for isize {
-    fn negative_one() -> Self {
-        -1
+    fn to_usize(self) -> usize {
+        self as usize
     }
 }
 
 impl StepOps for i128 {
-    fn negative_one() -> Self {
-        -1
+    fn to_usize(self) -> usize {
+        self as usize
     }
 }
 
 impl StepOps for i64 {
-    fn negative_one() -> Self {
-        -1
+    fn to_usize(self) -> usize {
+        self as usize
     }
 }
 
 impl StepOps for i32 {
-    fn negative_one() -> Self {
-        -1
+    fn to_usize(self) -> usize {
+        self as usize
     }
 }
 
 impl StepOps for i16 {
-    fn negative_one() -> Self {
-        -1
+    fn to_usize(self) -> usize {
+        self as usize
     }
 }
 
 impl StepOps for i8 {
-    fn negative_one() -> Self {
-        -1
+    fn to_usize(self) -> usize {
+        self as usize
     }
 }
 
 impl StepOps for f32 {
-    fn negative_one() -> Self {
-        -1.0
-    }
     fn floor(self) -> Self {
         self.floor()
+    }
+
+    fn to_usize(self) -> usize {
+        self as usize
     }
 }
 
 impl StepOps for f64 {
-    fn negative_one() -> Self {
-        -1.0
-    }
     fn floor(self) -> Self {
         self.floor()
+    }
+
+    fn to_usize(self) -> usize {
+        self as usize
     }
 }
 
@@ -93,7 +96,6 @@ pub trait IteratorOps:
     fn from_step(step: Self::Step) -> Self;
     fn to_extended_step(self) -> Self::ExtendedStep;
     fn from_extended_step(extended_step: Self::ExtendedStep) -> Self;
-    fn to_usize(self) -> usize;
 }
 
 pub trait SizeCompatible<T> {}
@@ -141,10 +143,6 @@ impl IteratorOps for u8 {
             0
         }
     }
-
-    fn to_usize(self) -> usize {
-        self as usize
-    }
 }
 
 impl IteratorOps for i8 {
@@ -174,10 +172,6 @@ impl IteratorOps for i8 {
         } else {
             0
         }
-    }
-
-    fn to_usize(self) -> usize {
-        self as usize
     }
 }
 
@@ -209,10 +203,6 @@ impl IteratorOps for u16 {
             0
         }
     }
-
-    fn to_usize(self) -> usize {
-        self as usize
-    }
 }
 
 impl IteratorOps for i16 {
@@ -242,10 +232,6 @@ impl IteratorOps for i16 {
         } else {
             0
         }
-    }
-
-    fn to_usize(self) -> usize {
-        self as usize
     }
 }
 
@@ -277,10 +263,6 @@ impl IteratorOps for u32 {
             0
         }
     }
-
-    fn to_usize(self) -> usize {
-        self as usize
-    }
 }
 
 impl IteratorOps for i32 {
@@ -310,10 +292,6 @@ impl IteratorOps for i32 {
         } else {
             0
         }
-    }
-
-    fn to_usize(self) -> usize {
-        self as usize
     }
 }
 
@@ -345,10 +323,6 @@ impl IteratorOps for u64 {
             0
         }
     }
-
-    fn to_usize(self) -> usize {
-        self as usize
-    }
 }
 
 impl IteratorOps for i64 {
@@ -379,10 +353,6 @@ impl IteratorOps for i64 {
             0
         }
     }
-
-    fn to_usize(self) -> usize {
-        self as usize
-    }
 }
 
 impl IteratorOps for u128 {
@@ -408,10 +378,6 @@ impl IteratorOps for u128 {
     }
     fn from_extended_step(step: Self::ExtendedStep) -> Self {
         unsafe { mem::transmute(step) }
-    }
-
-    fn to_usize(self) -> usize {
-        self as usize
     }
 }
 
@@ -439,10 +405,6 @@ impl IteratorOps for i128 {
     fn from_extended_step(extended_step: Self::ExtendedStep) -> Self {
         extended_step
     }
-
-    fn to_usize(self) -> usize {
-        self as usize
-    }
 }
 
 impl IteratorOps for usize {
@@ -469,10 +431,6 @@ impl IteratorOps for usize {
     fn from_extended_step(step: Self::ExtendedStep) -> Self {
         unsafe { mem::transmute(step) }
     }
-
-    fn to_usize(self) -> usize {
-        self
-    }
 }
 
 impl IteratorOps for isize {
@@ -498,10 +456,6 @@ impl IteratorOps for isize {
     }
     fn from_extended_step(extended_step: Self::ExtendedStep) -> Self {
         extended_step
-    }
-
-    fn to_usize(self) -> usize {
-        self as usize
     }
 }
 
@@ -533,10 +487,6 @@ impl IteratorOps for f32 {
             0.0
         }
     }
-
-    fn to_usize(self) -> usize {
-        self as usize
-    }
 }
 
 impl IteratorOps for f64 {
@@ -563,10 +513,6 @@ impl IteratorOps for f64 {
     fn from_extended_step(step: Self::Step) -> Self {
         step
     }
-
-    fn to_usize(self) -> usize {
-        self as usize
-    }
 }
 
 // impl IteratorOps for f128 {
@@ -589,56 +535,53 @@ where
     pub start: T,
     pub end: T,
     pub step: T::Step,
+
+    pub inclusive_or_not_on_step: bool,
+    pub invalid_range: bool,
 }
 
 impl<T> BasicRange<T>
 where
     T: IteratorOps
 {
-    pub fn new(start: T, mut end: T, step: T::Step, mut inclusive: bool) -> Self {
+    pub fn new(start: T, mut end: T, step: T::Step, inclusive: bool) -> Self {
         if step == T::Step::zero() {
             panic!("Step can't be 0");
         }
 
-        let range_size: T::ExtendedStep = if step > T::Step::zero() {
-            end.to_extended_step() - start.to_extended_step()
-        } else {
-            start.to_extended_step() - end.to_extended_step()
-        };
+        let mut on_step = true;
+        let invalid_range = (start < end && step < T::Step::zero()) ||
+            (start > end && step > T::Step::zero());
 
-        let on_step;
-        if start != end {
-            if range_size > T::from_step(T::Step::zero()).to_extended_step() {
+        if !invalid_range {
+            let range_size: T::ExtendedStep = if step > T::Step::zero() {
+                end.to_extended_step() - start.to_extended_step()
+            } else {
+                start.to_extended_step() - end.to_extended_step()
+            };
+
+            if start != end {
                 if step < T::Step::negative_one() || T::Step::one() < step {
-                    // Use specialized functions based on type
-                    (end, on_step) = Self::calculate_stop_and_steps(start, end, range_size, step)
-                    //} else {
-                    //    Self::calculate_integer_steps(start, end, range_size, step)
-                    //}
-                    ;
+                    (end, on_step) = Self::calculate_stop_and_steps(start, end, range_size, step);
                     println!("end is {}, zero is {}, step is {}, on_step is {}", end, T::Step::zero(), step, on_step);
                 } else {
                     on_step = true;
                 }
-            } else {
-                on_step = true;
-                inclusive = false;
-            }
 
-            if inclusive || !on_step {
-                println!("end is {}, zero is {}, step is {}, on_step is {}", end, T::Step::zero(), step, on_step);
-                end = T::from_step(end.to_step() + step);
-                println!("end is {}, zero is {}, step is {}, on_step is {}", end, T::Step::zero(), step, on_step);
+                if inclusive || !on_step {
+                    println!("end is {}, zero is {}, step is {}, on_step is {}", end, T::Step::zero(), step, on_step);
+                    end = T::from_step(end.to_step() + step);
+                    println!("end is {}, zero is {}, step is {}, on_step is {}", end, T::Step::zero(), step, on_step);
+                }
             }
         }
-        
-        BasicRange { start, end, step }
+        println!("invalid_range: {}, end: {}, step: {}, inclusive: {}, on_step: {}", invalid_range, end, step, inclusive, on_step);
+        BasicRange { start, end, step, inclusive_or_not_on_step: inclusive || !on_step, invalid_range }
     }
 
     fn calculate_stop_and_steps(start: T, end: T, range_size: T::ExtendedStep, step: T::Step) -> (T, bool)
     where
         T: IteratorOps
-        //T::Step: StepOps
     {
         //println!("start {} end {} range_size {} step {}", start, end, range_size, step);
         let range_size_as_extended_step = range_size;
@@ -664,6 +607,9 @@ where
     pub current: T,
     pub end: T,
     pub step: T::Step,
+
+    pub inclusive_or_not_on_step: bool,
+    pub invalid_range: bool,
 }
 
 impl<T> Iterator for BasicRangeIter<T>
@@ -674,15 +620,23 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         //println!("Current {}, step {}, end {}", self.current, self.step, self.end);
-        let stop = if self.step > T::Step::zero() {
-            self.current >= self.end
-        } else {
-            self.current <= self.end
-        };
-
-        if stop {
+        if self.invalid_range {
             None
         } else {
+            let stop = if self.step > T::Step::zero() {
+                self.current >= self.end
+            } else {
+                self.current <= self.end
+            };
+
+            if !self.inclusive_or_not_on_step {
+                if stop {
+                    return None
+                }
+            } else {
+                self.inclusive_or_not_on_step = false;
+            }
+
             let result = self.current;
             self.current = T::from_step(self.current.to_step() + self.step);
             Some(result)
@@ -702,6 +656,9 @@ where
             current: self.start,
             end: self.end,
             step: self.step,
+
+            inclusive_or_not_on_step: self.inclusive_or_not_on_step,
+            invalid_range: self.invalid_range,
         }
     }
 }
@@ -855,11 +812,13 @@ mod main_test {
         //fn void_range_prop(inclusive in 0..=1) {
         fn void_range_prop() {
             for inclusive in 0..=1 {
-                let expect = vec![];
-                verify_range(expect, BasicRange::new(0, 0, -2, inclusive > 0));
+                let expect_none = vec![];
+                let expect_once = vec![0];
+                verify_range(if inclusive > 0 { expect_once } else { expect_none }, BasicRange::new(0, 0, -2, inclusive > 0));
 
-                let expect = vec![];
-                verify_range(expect, BasicRange::new(0, 0, 2, inclusive > 0));
+                let expect_none = vec![];
+                let expect_once = vec![0];
+                verify_range(if inclusive > 0 { expect_once } else { expect_none }, BasicRange::new(0, 0, 2, inclusive > 0));
 
                 let expect = vec![];
                 verify_range(expect, BasicRange::new(3, 0, 1, inclusive > 0));
@@ -871,11 +830,13 @@ mod main_test {
         #[test]
         fn void_range_prop_float() {
             for inclusive in 0..=1 {
-                let expect = vec![];
-                verify_range(expect, BasicRange::new(0.0, 0.0, -2.0, inclusive > 0));
+                let expect_none = vec![];
+                let expect_once = vec![0.0];
+                verify_range(if inclusive > 0 { expect_once } else { expect_none }, BasicRange::new(0.0, 0.0, -2.0, inclusive > 0));
 
-                let expect = vec![];
-                verify_range(expect, BasicRange::new(0.0, 0.0, 2.0, inclusive > 0));
+                let expect_none = vec![];
+                let expect_once = vec![0.0];
+                verify_range(if inclusive > 0 { expect_once } else { expect_none }, BasicRange::new(0.0, 0.0, 2.0, inclusive > 0));
 
                 let expect = vec![];
                 verify_range(expect, BasicRange::new(3.0, 0.0, 1.0, inclusive > 0));
