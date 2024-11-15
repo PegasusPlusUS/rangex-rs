@@ -134,7 +134,6 @@ fn test_i8_inclusive_edge() {
     int_edge_with_step::<i8>(true, 1);
 }
 
-
 #[test]
 fn test_i8_inclusive_edge_not_on_step() {
     int_edge_with_step::<i8>(true, 3);
@@ -184,8 +183,28 @@ fn test_i16_exclusive_edge() {
 }
 
 #[test]
+fn test_i16_exclusive_edge_not_on_step() {
+    int_edge_with_step::<i16>(false, 3);
+}
+
+#[test]
+fn test_i16_exclusive_edge_on_step() {
+    int_edge_with_step::<i16>(false, 5);
+}
+
+#[test]
 fn test_i16_inclusive_edge() {
     int_edge_with_step::<i16>(true, 1);
+}
+
+#[test]
+fn test_i16_inclusive_edge_not_on_step() {
+    int_edge_with_step::<i16>(true, 3);
+}
+
+#[test]
+fn test_i16_inclusive_edge_on_step() {
+    int_edge_with_step::<i16>(true, 5);
 }
 
 #[test]
