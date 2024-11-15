@@ -1,114 +1,99 @@
 use std::mem;
 use std::ops::*;
+use num::{Num, Zero, One, FromPrimitive};
+use num::cast::AsPrimitive;
+use num::{zero, one};
 
 pub trait StepOps:
-    Add<Output = Self>
-    + Mul<Output = Self>
-    + Rem<Output = Self>
-    + Div<Output = Self>
-    + Sub<Output = Self>
-    + Copy
+    Num
     + PartialOrd
-    + PartialEq
+    + Copy
     + std::fmt::Debug
     + std::fmt::Display
 {
-    fn zero() -> Self; // { 0 as Self }
-    fn one() -> Self; // { 1 }
-    fn negative_one() -> Self; // { -1 }
-    fn rem_euclid(self, rhs: Self) -> Self { self % rhs }
+    fn negative_one() -> Self; // { zero::<T>() - one() }
     fn floor(self) -> Self { self }
     fn abs(self) -> Self { if self < Self::zero() { Self::zero() - self } else { self } }
-    //fn from_const(v: f64) -> Self { v as Self }
+}
+
+impl StepOps for isize {
+    fn negative_one() -> Self {
+        -1
+    }
 }
 
 impl StepOps for i128 {
-    fn zero() -> Self {
-        0
-    }
-    fn one() -> Self {
-        1
-    }
     fn negative_one() -> Self {
         -1
     }
 }
+
 impl StepOps for i64 {
-    fn zero() -> Self {
-        0
-    }
-    fn one() -> Self {
-        1
-    }
     fn negative_one() -> Self {
         -1
     }
 }
+
 impl StepOps for i32 {
-    fn zero() -> Self {
-        0
-    }
-    fn one() -> Self {
-        1
-    }
     fn negative_one() -> Self {
         -1
     }
 }
+
 impl StepOps for i16 {
-    fn zero() -> Self {
-        0
-    }
-    fn one() -> Self {
-        1
-    }
     fn negative_one() -> Self {
         -1
     }
 }
+
 impl StepOps for i8 {
-    fn zero() -> Self {
-        0
-    }
-    fn one() -> Self {
-        1
-    }
     fn negative_one() -> Self {
         -1
     }
 }
 
 impl StepOps for f32 {
-    fn zero() -> Self { 0.0 }
-    fn one() -> Self { 1.0 }
-    fn negative_one() -> Self { -1.0 }
-    fn floor(self) -> Self { self.floor() }
+    fn negative_one() -> Self {
+        -1.0
+    }
+    fn floor(self) -> Self {
+        self.floor()
+    }
 }
 
 impl StepOps for f64 {
-    fn zero() -> Self { 0.0 }
-    fn one() -> Self { 1.0 }
-    fn negative_one() -> Self { -1.0 }
-    fn floor(self) -> Self { self.floor() }
+    fn negative_one() -> Self {
+        -1.0
+    }
+    fn floor(self) -> Self {
+        self.floor()
+    }
 }
 
+// #![feature(f128_type)]
+// impl StepOps for f128 {
+//     fn zero() -> Self { 0.0 }
+//     fn one() -> Self { 1.0 }
+//     fn negative_one() -> Self { -1.0 }
+//     fn floor(self) -> Self { self.floor() }
+// }
+
 pub trait IteratorOps:
-    Add<Output = Self>
-    + Sub<Output = Self>
-    + Rem<Output = Self>
-    + Div<Output = Self>
-    + Mul<Output = Self>
-    //+ Neg<Output = Self>
-    + AddAssign
-    + Copy
+    Num
     + PartialOrd
-    + PartialEq
+    + Copy
     + std::fmt::Debug
     + std::fmt::Display
 {
     type Step: StepOps;
-    fn to_step(self) -> Self::Step; // { self }
-    fn from_step(step: Self::Step) -> Self; // { step } // Conversion back to original type
+    type ExtendedStep: StepOps;
+    fn min() -> Self;
+    fn max() -> Self;
+    fn to_step(self) -> Self::Step;
+    fn from_step(step: Self::Step) -> Self;
+    fn to_extended_step(self) -> Self::ExtendedStep;
+    fn from_extended_step(extended_step: Self::ExtendedStep) -> Self;
+    fn to_usize(self) -> usize;
 }
 
 pub trait SizeCompatible<T> {}
@@ -128,138 +113,474 @@ impl SizeCompatible<i128> for i128 {}
 // Implement the trait for specific types
 impl IteratorOps for u8 {
     type Step = i8;
+    type ExtendedStep = i16;
 
-    fn to_step(self) -> Self::Step {
+    fn min() -> Self {
+        u8::MIN
+    }
+    fn max() -> Self {
+        u8::MAX
+    }
+
+    fn to_step(self) -> i8 {
         unsafe { mem::transmute(self) }
     }
 
-    fn from_step(step: Self::Step) -> Self {
+    fn from_step(step: i8) -> u8 {
         unsafe { mem::transmute(step) }
     }
+
+    fn to_extended_step(self) -> i16 {
+        self as i16
+    }
+
+    fn from_extended_step(extended_step: i16) -> Self {
+        if let Some(result) = u8::from_i16(extended_step) {
+            result
+        } else {
+            0
+        }
+    }
+
+    fn to_usize(self) -> usize {
+        self as usize
+    }
 }
+
 impl IteratorOps for i8 {
     type Step = i8;
+    type ExtendedStep = i16;
+
+    fn min() -> Self {
+        i8::MIN
+    }
+    fn max() -> Self {
+        i8::MAX
+    }
 
     fn to_step(self) -> Self::Step {
         self
     }
-
     fn from_step(step: Self::Step) -> Self {
         step
     }
+
+    fn to_extended_step(self) -> Self::ExtendedStep {
+        self as Self::ExtendedStep
+    }
+    fn from_extended_step(step: Self::ExtendedStep) -> Self {
+        if let Some(result) = i8::from_i16(step) {
+            result
+        } else {
+            0
+        }
+    }
+
+    fn to_usize(self) -> usize {
+        self as usize
+    }
 }
+
 impl IteratorOps for u16 {
     type Step = i16;
+    type ExtendedStep = i32;
+
+    fn min() -> Self {
+        u16::MIN
+    }
+    fn max() -> Self {
+        u16::MAX
+    }
 
     fn to_step(self) -> Self::Step {
         unsafe { mem::transmute(self) }
     }
-
     fn from_step(step: Self::Step) -> Self {
         unsafe { mem::transmute(step) }
     }
+
+    fn to_extended_step(self) -> Self::ExtendedStep {
+        self as Self::ExtendedStep
+    }
+    fn from_extended_step(step: Self::ExtendedStep) -> Self {
+        if let Some(result) = u16::from_i32(step) {
+            result
+        } else {
+            0
+        }
+    }
+
+    fn to_usize(self) -> usize {
+        self as usize
+    }
 }
+
 impl IteratorOps for i16 {
     type Step = i16;
+    type ExtendedStep = i32;
+
+    fn min() -> Self {
+        i16::MIN
+    }
+    fn max() -> Self {
+        i16::MAX
+    }
 
     fn to_step(self) -> Self::Step {
         self
     }
-
     fn from_step(step: Self::Step) -> Self {
         step
     }
+
+    fn to_extended_step(self) -> Self::ExtendedStep {
+        self as Self::ExtendedStep
+    }
+    fn from_extended_step(step: Self::ExtendedStep) -> Self {
+        if let Some(result) = i16::from_i32(step) {
+            result
+        } else {
+            0
+        }
+    }
+
+    fn to_usize(self) -> usize {
+        self as usize
+    }
 }
+
 impl IteratorOps for u32 {
     type Step = i32;
+    type ExtendedStep = i64;
+
+    fn min() -> Self {
+        u32::MIN
+    }
+    fn max() -> Self {
+        u32::MAX
+    }
 
     fn to_step(self) -> Self::Step {
         unsafe { mem::transmute(self) }
     }
-
     fn from_step(step: Self::Step) -> Self {
         unsafe { mem::transmute(step) }
     }
+
+    fn to_extended_step(self) -> Self::ExtendedStep {
+        self as Self::ExtendedStep
+    }
+    fn from_extended_step(step: Self::ExtendedStep) -> Self {
+        if let Some(result) = u32::from_i64(step) {
+            result
+        } else {
+            0
+        }
+    }
+
+    fn to_usize(self) -> usize {
+        self as usize
+    }
 }
+
 impl IteratorOps for i32 {
     type Step = i32;
+    type ExtendedStep = i64;
+
+    fn min() -> Self {
+        i32::MIN
+    }
+    fn max() -> Self {
+        i32::MAX
+    }
 
     fn to_step(self) -> Self::Step {
         self
     }
-
     fn from_step(step: Self::Step) -> Self {
         step
     }
+
+    fn to_extended_step(self) -> Self::ExtendedStep {
+        self as Self::ExtendedStep
+    }
+    fn from_extended_step(step: Self::ExtendedStep) -> Self {
+        if let Some(result) = i32::from_i64(step) {
+            result
+        } else {
+            0
+        }
+    }
+
+    fn to_usize(self) -> usize {
+        self as usize
+    }
 }
+
 impl IteratorOps for u64 {
     type Step = i64;
+    type ExtendedStep = i128;
+
+    fn min() -> Self {
+        u64::MIN
+    }
+    fn max() -> Self {
+        u64::MAX
+    }
 
     fn to_step(self) -> Self::Step {
         unsafe { mem::transmute(self) }
     }
-
     fn from_step(step: Self::Step) -> Self {
         unsafe { mem::transmute(step) }
     }
+
+    fn to_extended_step(self) -> Self::ExtendedStep {
+        self as Self::ExtendedStep
+    }
+    fn from_extended_step(step: Self::ExtendedStep) -> Self {
+        if let Some(result) = u64::from_i128(step) {
+            result
+        } else {
+            0
+        }
+    }
+
+    fn to_usize(self) -> usize {
+        self as usize
+    }
 }
+
 impl IteratorOps for i64 {
     type Step = i64;
+    type ExtendedStep = i128;
+
+    fn min() -> Self {
+        i64::MIN
+    }
+    fn max() -> Self {
+        i64::MAX
+    }
 
     fn to_step(self) -> Self::Step {
         self
     }
-
     fn from_step(step: Self::Step) -> Self {
         step
     }
+
+    fn to_extended_step(self) -> Self::ExtendedStep {
+        self as Self::ExtendedStep
+    }
+    fn from_extended_step(step: Self::ExtendedStep) -> Self {
+        if let Some(result) = i64::from_i128(step) {
+            result
+        } else {
+            0
+        }
+    }
+
+    fn to_usize(self) -> usize {
+        self as usize
+    }
 }
+
 impl IteratorOps for u128 {
     type Step = i128;
+    type ExtendedStep = i128;
+
+    fn min() -> Self {
+        u128::MIN
+    }
+    fn max() -> Self {
+        u128::MAX
+    }
 
     fn to_step(self) -> Self::Step {
         unsafe { mem::transmute(self) }
     }
-
     fn from_step(step: Self::Step) -> Self {
         unsafe { mem::transmute(step) }
     }
+
+    fn to_extended_step(self) -> Self::ExtendedStep {
+        unsafe { mem::transmute(self) }
+    }
+    fn from_extended_step(step: Self::ExtendedStep) -> Self {
+        unsafe { mem::transmute(step) }
+    }
+
+    fn to_usize(self) -> usize {
+        self as usize
+    }
 }
+
 impl IteratorOps for i128 {
     type Step = i128;
+    type ExtendedStep = i128;
+
+    fn min() -> i128 {
+        i128::MIN
+    }
+    fn max() -> i128 {
+        i128::MAX
+    }
 
     fn to_step(self) -> Self::Step {
         self
     }
-
     fn from_step(step: Self::Step) -> Self {
         step
+    }
+
+    fn to_extended_step(self) -> Self::ExtendedStep {
+        self
+    }
+    fn from_extended_step(extended_step: Self::ExtendedStep) -> Self {
+        extended_step
+    }
+
+    fn to_usize(self) -> usize {
+        self as usize
+    }
+}
+
+impl IteratorOps for usize {
+    type Step = isize;
+    type ExtendedStep = isize;
+
+    fn min() -> Self {
+        usize::MIN
+    }
+    fn max() -> Self {
+        usize::MAX
+    }
+
+    fn to_step(self) -> Self::Step {
+        unsafe { mem::transmute(self) }
+    }
+    fn from_step(step: Self::Step) -> Self {
+        unsafe { mem::transmute(step) }
+    }
+
+    fn to_extended_step(self) -> Self::ExtendedStep {
+        unsafe { mem::transmute(self) }
+    }
+    fn from_extended_step(step: Self::ExtendedStep) -> Self {
+        unsafe { mem::transmute(step) }
+    }
+
+    fn to_usize(self) -> usize {
+        self
+    }
+}
+
+impl IteratorOps for isize {
+    type Step = isize;
+    type ExtendedStep = isize;
+
+    fn min() -> isize {
+        isize::MIN
+    }
+    fn max() -> isize {
+        isize::MAX
+    }
+
+    fn to_step(self) -> Self::Step {
+        self
+    }
+    fn from_step(step: Self::Step) -> Self {
+        step
+    }
+
+    fn to_extended_step(self) -> Self::ExtendedStep {
+        self
+    }
+    fn from_extended_step(extended_step: Self::ExtendedStep) -> Self {
+        extended_step
+    }
+
+    fn to_usize(self) -> usize {
+        self as usize
     }
 }
 
 impl IteratorOps for f32 {
     type Step = f32;
+    type ExtendedStep = f64;
+
+    fn min() -> f32 {
+        f32::MIN
+    }
+    fn max() -> f32 {
+        f32::MAX
+    }
 
     fn to_step(self) -> Self::Step {
         self
     }
-
     fn from_step(step: Self::Step) -> Self {
         step
+    }
+
+    fn to_extended_step(self) -> Self::ExtendedStep {
+        self as f64
+    }
+    fn from_extended_step(extended_step: Self::ExtendedStep) -> Self {
+        if let Some(result) = f32::from_f64(extended_step) {
+            result
+        } else {
+            0.0
+        }
+    }
+
+    fn to_usize(self) -> usize {
+        self as usize
     }
 }
 
 impl IteratorOps for f64 {
     type Step = f64;
+    type ExtendedStep = f64;
+
+    fn min() -> f64 {
+        f64::MIN
+    }
+    fn max() -> f64 {
+        f64::MAX
+    }
 
     fn to_step(self) -> Self::Step {
         self
     }
-
     fn from_step(step: Self::Step) -> Self {
         step
     }
+
+    fn to_extended_step(self) -> Self::ExtendedStep {
+        self
+    }
+    fn from_extended_step(step: Self::Step) -> Self {
+        step
+    }
+
+    fn to_usize(self) -> usize {
+        self as usize
+    }
 }
+
+// impl IteratorOps for f128 {
+//     type Step = f128;
+//     type ExtendedStep = f128;
+
+//     fn to_step(self) -> Self::Step {
+//         self
+//     }
+
+//     fn from_step(step: Self::Step) -> Self {
+//         step
+//     }
+// }
 
 pub struct BasicRange<T>
 where
@@ -272,23 +593,22 @@ where
 
 impl<T> BasicRange<T>
 where
-    T: IteratorOps + std::fmt::Display,
-    T::Step: std::fmt::Display,
+    T: IteratorOps
 {
     pub fn new(start: T, mut end: T, step: T::Step, mut inclusive: bool) -> Self {
         if step == T::Step::zero() {
             panic!("Step can't be 0");
         }
 
-        let range_size = if step > T::Step::zero() {
-            end - start
+        let range_size: T::ExtendedStep = if step > T::Step::zero() {
+            end.to_extended_step() - start.to_extended_step()
         } else {
-            start - end
+            start.to_extended_step() - end.to_extended_step()
         };
 
         let on_step;
         if start != end {
-            if range_size > T::from_step(T::Step::zero()) {
+            if range_size > T::from_step(T::Step::zero()).to_extended_step() {
                 if step < T::Step::negative_one() || T::Step::one() < step {
                     // Use specialized functions based on type
                     (end, on_step) = Self::calculate_stop_and_steps(start, end, range_size, step)
@@ -315,24 +635,25 @@ where
         BasicRange { start, end, step }
     }
 
-    fn calculate_stop_and_steps(start: T, end: T, range_size: T, step: T::Step) -> (T, bool)
+    fn calculate_stop_and_steps(start: T, end: T, range_size: T::ExtendedStep, step: T::Step) -> (T, bool)
     where
-        T::Step: StepOps
+        T: IteratorOps
+        //T::Step: StepOps
     {
         //println!("start {} end {} range_size {} step {}", start, end, range_size, step);
-        let range_size_as_step = T::to_step(range_size);
+        let range_size_as_extended_step = range_size;
         let positive_step :T::Step = if step < T::Step::zero() { T::Step::zero() - step } else { step};
-        let steps = (range_size_as_step / positive_step).floor();
+        let steps = (range_size_as_extended_step / T::from_step(positive_step).to_extended_step()).floor();
         //println!("range_size_as_step {} steps {}", range_size_as_step, steps);
-        let on_step = T::Step::zero() == range_size_as_step.rem_euclid(step);
-        let new_range_size = T::from_step(steps * positive_step);
-        let new_end : T::Step = start.to_step() + if start < end {
-            new_range_size.to_step()
+        let on_step = T::ExtendedStep::zero() == range_size_as_extended_step.rem(T::from_step(step).to_extended_step());
+        let new_range_size = steps * T::from_step(positive_step).to_extended_step();
+        let new_end : T::ExtendedStep = start.to_extended_step() + if start < end {
+            new_range_size
         } else {
-            T::Step::zero() - new_range_size.to_step()
+            T::ExtendedStep::zero() - new_range_size
         };
         //println!("new end {}", new_end);
-        (T::from_step(new_end), on_step)
+        (T::from_extended_step(new_end), on_step)
     }
 }
 
@@ -417,8 +738,7 @@ mod main_test {
 
     fn verify_range<T>(expect: Vec<T>, r: BasicRange<T>)
     where
-        T: IteratorOps + std::fmt::Display,
-        <BasicRange<T> as IntoIterator>::Item: std::fmt::Debug + PartialEq<T>,
+        T: IteratorOps,
     {
         let mut index = 0;
         for value in r {
@@ -431,7 +751,7 @@ mod main_test {
 
     fn verify_std_range<T, R>(expect: Vec<T>, r: R)
     where
-        T: std::fmt::Debug + std::fmt::Display + PartialEq,
+        T: IteratorOps,
         R: IntoIterator<Item = T>,
     {
         let mut index = 0;
@@ -669,38 +989,26 @@ mod main_test {
         // This causes zero_step() run multiple times #[test]#[test]
 
         #[test]
-        #[ignore]
+        #[should_panic]
         fn zero_step() {
-            let test_setting = std::env::var("TEST_KEY").unwrap_or_else(|_| "".to_string());
-            let mut skip_fail = false;
-            let _test_flags: Vec<String> = test_setting
-                .split_whitespace()
-                .map(|s| {
-                    skip_fail = s == "skip_fail";
-                    s.to_string()
-                })
-                .collect();
+            // Infinity or panic
+            for _value in BasicRange::new(0, 1, 0, false) {
+                //println!("{}", _value);
+            }
 
-            if !skip_fail {
-                // Infinity or panic
-                for _value in BasicRange::new(0, 1, 0, false) {
-                    //println!("{}", _value);
-                }
+            // Infinity or panic
+            for _value in BasicRange::new(0, 1, 0, true) {
+                //println!("{}", _value);
+            }
 
-                // Infinity or panic
-                for _value in BasicRange::new(0, 1, 0, true) {
-                    //println!("{}", _value);
-                }
+            // Infinity or panic
+            for _value in BasicRange::new(0.0, 1.0, 0.0, false) {
+                //println!("{}", _value);
+            }
 
-                // Infinity or panic
-                for _value in BasicRange::new(0.0, 1.0, 0.0, false) {
-                    //println!("{}", _value);
-                }
-
-                // Infinity or panic
-                for _value in BasicRange::new(0.0, 1.0, 0.0, true) {
-                    //println!("{}", _value);
-                }
+            // Infinity or panic
+            for _value in BasicRange::new(0.0, 1.0, 0.0, true) {
+                //println!("{}", _value);
             }
         }
     }

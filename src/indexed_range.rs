@@ -228,28 +228,16 @@ mod main_test {
     }
 
     #[test]
-    #[ignore]
+    #[should_panic]
     fn zero_step() {
-        let test_setting = std::env::var("TEST_KEY").unwrap_or_else(|_| "".to_string());
-        let mut skip_fail = false;
-        let _test_flags: Vec<String> = test_setting
-            .split_whitespace()
-            .map(|s| {
-                skip_fail = s == "skip_fail";
-                s.to_string()
-            })
-            .collect();
+        // Infinity or panic
+        for (i, value) in IndexedRange::new(0, 1, 0, false) {
+            println!("index:{} value:{}", i, value);
+        }
 
-        if !skip_fail {
-            // Infinity or panic
-            for (i, value) in IndexedRange::new(0, 1, 0, false) {
-                println!("index:{} value:{}", i, value);
-            }
-
-            // Infinity or panic
-            for (i, value) in IndexedRange::new(0, 1, 0, true) {
-                println!("index:{} value:{}", i, value);
-            }
+        // Infinity or panic
+        for (i, value) in IndexedRange::new(0, 1, 0, true) {
+            println!("index:{} value:{}", i, value);
         }
     }
 }
