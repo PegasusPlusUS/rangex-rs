@@ -13,6 +13,7 @@ name = "forangex"
 version = "0.4.1"
 dependencies = [
  "num",
+ "num-traits",
 ]
 
 [[package]]

@@ -1,11 +1,12 @@
 use std::mem;
 use std::ops::*;
 use num::{Num, Zero, One, FromPrimitive};
-use num::cast::AsPrimitive;
-use num::{zero, one};
+//use num::cast::AsPrimitive;
+//use num::{zero, one};
 
 pub trait StepOps:
     Num
+    //+ num_traits::ops::overflowing::OverflowingAdd
     + PartialOrd
     + Copy
     + std::fmt::Debug
@@ -96,6 +97,11 @@ pub trait IteratorOps:
     fn from_step(step: Self::Step) -> Self;
     fn to_extended_step(self) -> Self::ExtendedStep;
     fn from_extended_step(extended_step: Self::ExtendedStep) -> Self;
+    fn extend_step(step: Self::Step) -> Self::ExtendedStep;
+    //fn next(&mut self, step: Self::Step) { *self = *self + Self::from_step(step); }
+    fn next(&mut self, step: Self::Step) {
+        *self = Self::from_extended_step(self.to_extended_step() + Self::extend_step(step));
+    }
 }
 
 pub trait SizeCompatible<T> {}
@@ -135,13 +141,28 @@ impl IteratorOps for u8 {
     fn to_extended_step(self) -> i16 {
         self as i16
     }
-
-    fn from_extended_step(extended_step: i16) -> Self {
-        if let Some(result) = u8::from_i16(extended_step) {
+    fn from_extended_step(extended_step: Self::ExtendedStep) -> Self {
+        if let Some(result) = Self::from_i16(extended_step) {
+            println!("From extended step {} {}", extended_step, result);
             result
         } else {
-            0
+            let result =
+            if extended_step > 255 {
+                (extended_step - 256) as Self
+            } else { 
+                (256 + extended_step) as Self
+            };
+            println!("From extended step overflow {} adjust as {}", extended_step, result);
+            result
         }
+        // if let Some(result) = u8::from_i16(extended_step) {
+        //     result
+        // } else {
+        //     0
+        // }
+    }
+    fn extend_step(step: Self::Step) -> Self::ExtendedStep {
+        step as Self::ExtendedStep
     }
 }
 
@@ -166,12 +187,23 @@ impl IteratorOps for i8 {
     fn to_extended_step(self) -> Self::ExtendedStep {
         self as Self::ExtendedStep
     }
-    fn from_extended_step(step: Self::ExtendedStep) -> Self {
-        if let Some(result) = i8::from_i16(step) {
+    fn from_extended_step(extended_step: Self::ExtendedStep) -> Self {
+        if let Some(result) = Self::from_i16(extended_step) {
+            println!("From extended step {} {}", extended_step, result);
             result
         } else {
-            0
+            let result =
+            if extended_step > 127 {
+                (extended_step - 256) as Self
+            } else { 
+                (256 + extended_step) as Self
+            };
+            println!("From extended step overflow {} adjust as {}", extended_step, result);
+            result
         }
+    }
+    fn extend_step(step: Self::Step) -> Self::ExtendedStep {
+        step as Self::ExtendedStep
     }
 }
 
@@ -203,6 +235,9 @@ impl IteratorOps for u16 {
             0
         }
     }
+    fn extend_step(step: Self::Step) -> Self::ExtendedStep {
+        step as Self::ExtendedStep
+    }
 }
 
 impl IteratorOps for i16 {
@@ -232,6 +267,9 @@ impl IteratorOps for i16 {
         } else {
             0
         }
+    }
+    fn extend_step(step: Self::Step) -> Self::ExtendedStep {
+        step as Self::ExtendedStep
     }
 }
 
@@ -263,6 +301,9 @@ impl IteratorOps for u32 {
             0
         }
     }
+    fn extend_step(step: Self::Step) -> Self::ExtendedStep {
+        step as Self::ExtendedStep
+    }
 }
 
 impl IteratorOps for i32 {
@@ -292,6 +333,9 @@ impl IteratorOps for i32 {
         } else {
             0
         }
+    }
+    fn extend_step(step: Self::Step) -> Self::ExtendedStep {
+        step as Self::ExtendedStep
     }
 }
 
@@ -323,6 +367,9 @@ impl IteratorOps for u64 {
             0
         }
     }
+    fn extend_step(step: Self::Step) -> Self::ExtendedStep {
+        step as Self::ExtendedStep
+    }
 }
 
 impl IteratorOps for i64 {
@@ -353,6 +400,9 @@ impl IteratorOps for i64 {
             0
         }
     }
+    fn extend_step(step: Self::Step) -> Self::ExtendedStep {
+        step as Self::ExtendedStep
+    }
 }
 
 impl IteratorOps for u128 {
@@ -378,6 +428,9 @@ impl IteratorOps for u128 {
     }
     fn from_extended_step(step: Self::ExtendedStep) -> Self {
         unsafe { mem::transmute(step) }
+    }
+    fn extend_step(step: Self::Step) -> Self::ExtendedStep {
+        step as Self::ExtendedStep
     }
 }
 
@@ -405,6 +458,9 @@ impl IteratorOps for i128 {
     fn from_extended_step(extended_step: Self::ExtendedStep) -> Self {
         extended_step
     }
+    fn extend_step(step: Self::Step) -> Self::ExtendedStep {
+        step as Self::ExtendedStep
+    }
 }
 
 impl IteratorOps for usize {
@@ -431,6 +487,10 @@ impl IteratorOps for usize {
     fn from_extended_step(step: Self::ExtendedStep) -> Self {
         unsafe { mem::transmute(step) }
     }
+
+    fn extend_step(step: Self::Step) -> Self::ExtendedStep {
+        step as Self::ExtendedStep
+    }
 }
 
 impl IteratorOps for isize {
@@ -456,6 +516,10 @@ impl IteratorOps for isize {
     }
     fn from_extended_step(extended_step: Self::ExtendedStep) -> Self {
         extended_step
+    }
+    
+    fn extend_step(step: Self::Step) -> Self::ExtendedStep {
+        step as Self::ExtendedStep
     }
 }
 
@@ -487,6 +551,13 @@ impl IteratorOps for f32 {
             0.0
         }
     }
+    fn extend_step(step: Self::Step) -> Self::ExtendedStep {
+        step as Self::ExtendedStep
+    }
+
+    fn next(&mut self, step: Self::Step) {
+        *self += step;
+    }
 }
 
 impl IteratorOps for f64 {
@@ -512,6 +583,13 @@ impl IteratorOps for f64 {
     }
     fn from_extended_step(step: Self::Step) -> Self {
         step
+    }
+    fn extend_step(step: Self::Step) -> Self::ExtendedStep {
+        step as Self::ExtendedStep
+    }
+
+    fn next(&mut self, step: Self::Step) {
+        *self += step;
     }
 }
 
@@ -567,12 +645,12 @@ where
                 } else {
                     on_step = true;
                 }
+            }
 
-                if inclusive || !on_step {
-                    println!("end is {}, zero is {}, step is {}, on_step is {}", end, T::Step::zero(), step, on_step);
-                    end = T::from_step(end.to_step() + step);
-                    println!("end is {}, zero is {}, step is {}, on_step is {}", end, T::Step::zero(), step, on_step);
-                }
+            if inclusive || !on_step {
+                println!("end is {}, zero is {}, step is {}, on_step is {}", end, T::Step::zero(), step, on_step);
+                end.next(step);
+                println!("end is {}, zero is {}, step is {}, on_step is {}", end, T::Step::zero(), step, on_step);
             }
         }
         println!("invalid_range: {}, end: {}, step: {}, inclusive: {}, on_step: {}", invalid_range, end, step, inclusive, on_step);
@@ -623,22 +701,24 @@ where
         if self.invalid_range {
             None
         } else {
-            let stop = if self.step > T::Step::zero() {
-                self.current >= self.end
-            } else {
-                self.current <= self.end
-            };
+            //println!("Current {}, step {}, end {} inclusive or not on step {}", self.current, self.step, self.end, self.inclusive_or_not_on_step);
+            let stop = self.current == self.end;
 
             if !self.inclusive_or_not_on_step {
                 if stop {
+                    println!("Stop!");
                     return None
                 }
             } else {
                 self.inclusive_or_not_on_step = false;
             }
 
+            // const result = @addWithOverflow(@as(SignedT, @bitCast(self.curr)), self.step);
+            // self.curr = @as(T, @bitCast(result[0]));
+
             let result = self.current;
-            self.current = T::from_step(self.current.to_step() + self.step);
+            self.current = T::from_extended_step(self.current.to_extended_step() + T::extend_step(self.step));
+            println!("Current {}, step {}, end {}, current + step {}/{}", result, self.step, self.end, result.to_extended_step() + T::extend_step(self.step), self.current);
             Some(result)
         }
     }

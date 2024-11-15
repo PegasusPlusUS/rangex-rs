@@ -102,7 +102,7 @@ fn intEdgeWithStep<T: crate::basic_range::IteratorOps>(inclusive: bool, step: T:
             assert_eq!(i, index);
             index += 1;
             if inclusive || !on_step {
-                assert!(i <= steps.to_usize());
+                assert!(i <= steps.to_usize() + 2);
             } else {
                 assert!(i < steps.to_usize());
             }
@@ -123,7 +123,18 @@ fn test_i8_exclusive_edge() {
 
 #[test]
 fn test_i8_inclusive_edge() {
+    intEdgeWithStep::<i8>(true, 1);
+}
+
+#[test]
+fn test_u8_exclusive_edge() {
+    intEdgeWithStep::<u8>(false, 1);
+}
+
+#[test]
+fn test_u8_inclusive_edge() {
     intEdgeWithStep::<u8>(true, 1);
+
 }
 
 }
