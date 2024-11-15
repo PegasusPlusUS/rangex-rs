@@ -61,3 +61,5 @@ pub mod basic_range;
 /// assert_eq!(sv, 5050);
 /// ```
 pub mod indexed_range;
+
+mod edge;
