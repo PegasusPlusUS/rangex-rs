@@ -59,11 +59,11 @@ fn int_edge_with_step<T: crate::basic_range::IteratorOps>(inclusive: bool, step:
     let range_size: T::ExtendedStep = int_max.to_extended_step() - int_min.to_extended_step();
     let steps: T::ExtendedStep = (range_size / T::from_step(step).to_extended_step()).floor();
     let on_step = range_size.rem(T::from_step(step).to_extended_step()) == (steps - steps);
-    let debug_print = false;
+    const DEBUG_PRINT: bool = false;
     if true
     {
         print!("{} while range [{}, {}{}, step {}", type_name::<T>(), int_min, int_max, get_range_end_mark_char(inclusive), step);
-        if debug_print {
+        if DEBUG_PRINT {
             println!(" range_size {}, steps {}, on_step {}:", range_size, steps, on_step);
         }
         println!("");
