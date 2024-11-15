@@ -1,0 +1,12 @@
+{
+  "name": "Rust",
+  "dockerFile": "Dockerfile",
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash"
+  },
+  "extensions": [
+    "rust-lang.rust",
+    "matklad.rust-analyzer"
+  ],
+  "workspaceFolder": "/workspace"
+}
