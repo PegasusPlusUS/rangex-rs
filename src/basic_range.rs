@@ -2,7 +2,7 @@ use std::mem;
 use std::ops::*;
 use num::{Num, Zero, One, FromPrimitive};
 
-pub const DEBUG_PRINT: bool = false;
+pub const DEBUG_PRINT: bool = true;
 pub const ERROR_PRINT: bool = true;
 
 pub trait StepOps:
@@ -707,8 +707,10 @@ where
         let range_size_as_extended_step = range_size;
         let positive_step :T::Step = if step < T::Step::zero() { T::Step::zero() - step } else { step};
         let steps = (range_size_as_extended_step / T::from_step(positive_step).to_extended_step()).floor();
-        //println!("range_size_as_step {} steps {}", range_size_as_step, steps);
-        let on_step = T::ExtendedStep::zero() == range_size_as_extended_step.rem(T::from_step(step).to_extended_step());
+        if DEBUG_PRINT {
+            println!("range_size_as_extended_step {} steps {}", range_size_as_extended_step, steps);
+        }
+        let on_step = T::ExtendedStep::zero() == range_size_as_extended_step.rem(T::extend_step(positive_step));
         let new_range_size = steps * T::from_step(positive_step).to_extended_step();
         let new_end : T::ExtendedStep = start.to_extended_step() + if start < end {
             new_range_size
