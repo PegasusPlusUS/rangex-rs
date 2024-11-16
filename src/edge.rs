@@ -67,9 +67,17 @@ fn int_edge_with_step<T: crate::basic_range::IteratorOps>(inclusive: bool, step:
         )
     };
     const DEBUG_PRINT: bool = true;
-    if true
-    {
-        print!("{} while range [{}, {}{}, step {}", type_name::<T>(), int_min, int_max, get_range_end_mark_char(inclusive), step);
+    // positive step for countup
+    // negative step for countdown
+    // if step is T::Step::min(), can only do countdown
+    if step != T::Step::min() {
+        let positive_step = if step > (step - step) {
+            step
+        } else {
+            step - step - step
+        };
+        // countup
+        print!("{} while range [{}, {}{}, step {}", type_name::<T>(), int_min, int_max, get_range_end_mark_char(inclusive), positive_step);
         if DEBUG_PRINT {
             println!(" range_size {}, steps {}, on_step {}:", range_size, steps, on_step);
         }
@@ -99,8 +107,14 @@ fn int_edge_with_step<T: crate::basic_range::IteratorOps>(inclusive: bool, step:
     // Backward
     if true
     {
-        print!("Backward {} while range {}{}, {}], step: -{}:\n", type_name::<T>(), get_range_begin_mark_char(inclusive), int_min, int_max, step);
-        let range = IndexedRange::<T>::new(int_max, int_min, zero::<T::Step>() - step, inclusive);
+        let negative_step = if step < (step - step) {
+            step
+        } else {
+            step - step - step
+        };
+
+        print!("Backward {} while range {}{}, {}], step: {}:\n", type_name::<T>(), get_range_begin_mark_char(inclusive), int_min, int_max, negative_step);
+        let range = IndexedRange::<T>::new(int_max, int_min, negative_step, inclusive);
         let mut index: usize = 0;
         for (i, _) in range {
             assert_eq!(i, index);
@@ -239,9 +253,44 @@ fn test_u16_exclusive_edge() {
 }
 
 #[test]
+fn test_u16_exclusive_edge_not_on_step() {
+    int_edge_with_step::<u16>(false, 3);
+}
+
+#[test]
+fn test_u16_exclusive_edge_on_step() {
+    int_edge_with_step::<u16>(false, 5);
+}
+
+#[test]
 fn test_u16_inclusive_edge() {
     int_edge_with_step::<u16>(true, 1);
 
+}
+
+#[test]
+fn test_u16_inclusive_edge_not_on_step() {
+    int_edge_with_step::<u16>(true, 3);
+}
+
+#[test]
+fn test_u16_inclusive_edge_on_step() {
+    int_edge_with_step::<u16>(true, 5);
+}
+
+#[test]
+fn test_i32_exclusive_edge() {
+    int_edge_with_step::<i32>(false, 1 + i16::MAX as i32 - i16::MIN as i32);
+}
+
+#[test]
+fn test_i32_exclusive_edge_not_on_step() {
+    int_edge_with_step::<i32>(false, 31 + i16::MAX as i32 - i16::MIN as i32);
+}
+
+#[test]
+fn test_i32_exclusive_edge_on_step() {
+    int_edge_with_step::<i32>(false, 5 + 1 + i16::MAX as i32 - i16::MIN as i32);
 }
 
 }

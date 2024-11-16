@@ -7,12 +7,13 @@ pub const ERROR_PRINT: bool = true;
 
 pub trait StepOps:
     Num
-    //+ num_traits::ops::overflowing::OverflowingAdd
     + PartialOrd
     + Copy
     + std::fmt::Debug
     + std::fmt::Display
 {
+    fn min() -> Self;
+    fn max() -> Self;
     fn negative_one() -> Self { Self::zero() - Self::one() }
     fn floor(self) -> Self { self }
     fn abs(self) -> Self { if self < Self::zero() { Self::zero() - self } else { self } }
@@ -20,42 +21,84 @@ pub trait StepOps:
 }
 
 impl StepOps for isize {
+    fn min() -> Self {
+        Self::MIN
+    }
+    fn max() -> Self {
+        Self::MAX
+    }
     fn to_usize(self) -> usize {
         self as usize
     }
 }
 
 impl StepOps for i128 {
+    fn min() -> Self {
+        Self::MIN
+    }
+    fn max() -> Self {
+        Self::MAX
+    }
     fn to_usize(self) -> usize {
         self as usize
     }
 }
 
 impl StepOps for i64 {
+    fn min() -> Self {
+        Self::MIN
+    }
+    fn max() -> Self {
+        Self::MAX
+    }
     fn to_usize(self) -> usize {
         self as usize
     }
 }
 
 impl StepOps for i32 {
+    fn min() -> Self {
+        Self::MIN
+    }
+    fn max() -> Self {
+        Self::MAX
+    }
     fn to_usize(self) -> usize {
         self as usize
     }
 }
 
 impl StepOps for i16 {
+    fn min() -> Self {
+        Self::MIN
+    }
+    fn max() -> Self {
+        Self::MAX
+    }
     fn to_usize(self) -> usize {
         self as usize
     }
 }
 
 impl StepOps for i8 {
+    fn min() -> Self {
+        Self::MIN
+    }
+    fn max() -> Self {
+        Self::MAX
+    }
     fn to_usize(self) -> usize {
         self as usize
     }
 }
 
 impl StepOps for f32 {
+    fn min() -> Self {
+        Self::MIN
+    }
+    fn max() -> Self {
+        Self::MAX
+    }
     fn floor(self) -> Self {
         self.floor()
     }
@@ -66,6 +109,12 @@ impl StepOps for f32 {
 }
 
 impl StepOps for f64 {
+    fn min() -> Self {
+        Self::MIN
+    }
+    fn max() -> Self {
+        Self::MAX
+    }
     fn floor(self) -> Self {
         self.floor()
     }
@@ -705,13 +754,13 @@ where
             println!("start {} end {} range_size {} step {}", start, end, range_size, step);
         }
         let range_size_as_extended_step = range_size;
-        let positive_step :T::Step = if step < T::Step::zero() { T::Step::zero() - step } else { step};
-        let steps = (range_size_as_extended_step / T::from_step(positive_step).to_extended_step()).floor();
+        let positive_step :T::ExtendedStep = if step < T::Step::zero() { T::ExtendedStep::zero() - T::extend_step(step) } else { T::extend_step(step) };
+        let steps = (range_size_as_extended_step / positive_step).floor();
         if DEBUG_PRINT {
             println!("range_size_as_extended_step {} steps {}", range_size_as_extended_step, steps);
         }
-        let on_step = T::ExtendedStep::zero() == range_size_as_extended_step.rem(T::extend_step(positive_step));
-        let new_range_size = steps * T::from_step(positive_step).to_extended_step();
+        let on_step = T::ExtendedStep::zero() == range_size_as_extended_step.rem(positive_step);
+        let new_range_size = steps * positive_step;
         let new_end : T::ExtendedStep = start.to_extended_step() + if start < end {
             new_range_size
         } else {
