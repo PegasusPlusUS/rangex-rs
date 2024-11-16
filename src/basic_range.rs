@@ -5,6 +5,7 @@ use num::{Num, Zero, One, FromPrimitive};
 pub const DEBUG_PRINT: bool = false;
 pub const ERROR_PRINT: bool = true;
 
+/// StepOps describes trait for 'step' in 'for' loop
 pub trait StepOps:
     Num
     + PartialOrd
@@ -12,11 +13,17 @@ pub trait StepOps:
     + std::fmt::Debug
     + std::fmt::Display
 {
+    /// min value of step
     fn min() -> Self;
+    /// max value of step
     fn max() -> Self;
+    /// -1 value of step
     fn negative_one() -> Self { Self::zero() - Self::one() }
+    /// floor for float, or same for int
     fn floor(self) -> Self { self }
+    /// abs value
     fn abs(self) -> Self { if self < Self::zero() { Self::zero() - self } else { self } }
+    // Convert to usize type
     fn to_usize(self) -> usize;
 }
 
@@ -132,6 +139,7 @@ impl StepOps for f64 {
 //     fn floor(self) -> Self { self.floor() }
 // }
 
+/// IteratorOps describes trait for 'from'/'to' in 'for' loop
 pub trait IteratorOps:
     Num
     + PartialOrd
@@ -139,6 +147,7 @@ pub trait IteratorOps:
     + std::fmt::Debug
     + std::fmt::Display
 {
+    /// Step is the type for 'step', signed counterpart of 'from'/'to
     type Step: StepOps;
     type ExtendedStep: StepOps;
     fn min() -> Self;
