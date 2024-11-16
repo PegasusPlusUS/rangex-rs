@@ -57,9 +57,16 @@ fn int_edge_with_step<T: crate::basic_range::IteratorOps>(inclusive: bool, step:
     let int_min: T = T::min();
     let int_max: T = T::max();
     let range_size: T::ExtendedStep = int_max.to_extended_step() - int_min.to_extended_step();
-    let steps: T::ExtendedStep = (range_size / T::from_step(step).to_extended_step()).floor();
-    let on_step = range_size.rem(T::from_step(step).to_extended_step()) == (steps - steps);
-    const DEBUG_PRINT: bool = false;
+    let (steps, on_step): (T::ExtendedStep, bool) = if step > (step - step) {
+        ((range_size / T::extend_step(step)).floor(),
+        range_size.rem(T::extend_step(step)) == (range_size - range_size)
+        )
+    } else {
+        ((range_size /(T::extend_step(step) - T::extend_step(step) - T::extend_step(step))).floor(),
+        range_size.rem(T::extend_step(step) - T::extend_step(step) - T::extend_step(step)) == (range_size - range_size)
+        )
+    };
+    const DEBUG_PRINT: bool = true;
     if true
     {
         print!("{} while range [{}, {}{}, step {}", type_name::<T>(), int_min, int_max, get_range_end_mark_char(inclusive), step);
@@ -75,9 +82,8 @@ fn int_edge_with_step<T: crate::basic_range::IteratorOps>(inclusive: bool, step:
             if inclusive || !on_step {
                 assert!(i <= steps.to_usize());
             } else {
-                if i + 2 > steps.to_usize() {
-                    println!("i: {}, steps:{}, {}", i, steps, steps.to_usize());
-                    
+                if i == steps.to_usize() {
+                    println!("i: {}, steps:{}, {}", i, steps, steps.to_usize());  
                 }
                 assert!(i < steps.to_usize());
             }
@@ -130,6 +136,16 @@ fn test_i8_exclusive_edge_on_step() {
 }
 
 #[test]
+fn test_i8_exclusive_edge_min_step() {
+    int_edge_with_step::<i8>(false, i8::MIN);
+}
+
+#[test]
+fn test_i8_exclusive_edge_max_step() {
+    int_edge_with_step::<i8>(false, i8::MAX);
+}
+
+#[test]
 fn test_i8_inclusive_edge() {
     int_edge_with_step::<i8>(true, 1);
 }
@@ -142,6 +158,16 @@ fn test_i8_inclusive_edge_not_on_step() {
 #[test]
 fn test_i8_inclusive_edge_on_step() {
     int_edge_with_step::<i8>(true, 5);
+}
+
+#[test]
+fn test_i8_inclusive_edge_min_step() {
+    int_edge_with_step::<i8>(true, i8::MIN);
+}
+
+#[test]
+fn test_i8_inclusive_edge_max_step() {
+    int_edge_with_step::<i8>(true, i8::MAX);
 }
 
 #[test]
