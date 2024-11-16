@@ -375,11 +375,24 @@ impl IteratorOps for u32 {
     fn to_extended_step(self) -> Self::ExtendedStep {
         self as Self::ExtendedStep
     }
-    fn from_extended_step(step: Self::ExtendedStep) -> Self {
-        if let Some(result) = u32::from_i64(step) {
+    fn from_extended_step(extended_step: Self::ExtendedStep) -> Self {
+        if let Some(result) = Self::from_i64(extended_step) {
+            if DEBUG_PRINT {
+                println!("From extended step {} {}", extended_step, result);
+            }
             result
         } else {
-            0
+            let self_range_inclusive_number = 1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
+            let result =
+            if extended_step > Self::MAX as Self::ExtendedStep {
+                (extended_step - self_range_inclusive_number) as Self
+            } else { 
+                (self_range_inclusive_number + extended_step) as Self
+            };            
+            if DEBUG_PRINT || ERROR_PRINT {
+                println!("From extended step overflow {} adjust with {} as {}", extended_step, self_range_inclusive_number, result);
+            }
+            result
         }
     }
     fn extend_step(step: Self::Step) -> Self::ExtendedStep {
@@ -408,11 +421,24 @@ impl IteratorOps for i32 {
     fn to_extended_step(self) -> Self::ExtendedStep {
         self as Self::ExtendedStep
     }
-    fn from_extended_step(step: Self::ExtendedStep) -> Self {
-        if let Some(result) = i32::from_i64(step) {
+    fn from_extended_step(extended_step: Self::ExtendedStep) -> Self {
+        if let Some(result) = Self::from_i64(extended_step) {
+            if DEBUG_PRINT {
+                println!("From extended step {} {}", extended_step, result);
+            }
             result
         } else {
-            0
+            let self_range_inclusive_number = 1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
+            let result =
+            if extended_step > Self::MAX as Self::ExtendedStep {
+                (extended_step - self_range_inclusive_number) as Self
+            } else { 
+                (self_range_inclusive_number + extended_step) as Self
+            };            
+            if DEBUG_PRINT || ERROR_PRINT {
+                println!("From extended step overflow {} adjust with {} as {}", extended_step, self_range_inclusive_number, result);
+            }
+            result
         }
     }
     fn extend_step(step: Self::Step) -> Self::ExtendedStep {
@@ -441,11 +467,24 @@ impl IteratorOps for u64 {
     fn to_extended_step(self) -> Self::ExtendedStep {
         self as Self::ExtendedStep
     }
-    fn from_extended_step(step: Self::ExtendedStep) -> Self {
-        if let Some(result) = u64::from_i128(step) {
+    fn from_extended_step(extended_step: Self::ExtendedStep) -> Self {
+        if let Some(result) = Self::from_i128(extended_step) {
+            if DEBUG_PRINT {
+                println!("From extended step {} {}", extended_step, result);
+            }
             result
         } else {
-            0
+            let self_range_inclusive_number = 1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
+            let result =
+            if extended_step > Self::MAX as Self::ExtendedStep {
+                (extended_step - self_range_inclusive_number) as Self
+            } else { 
+                (self_range_inclusive_number + extended_step) as Self
+            };            
+            if DEBUG_PRINT || ERROR_PRINT {
+                println!("From extended step overflow {} adjust with {} as {}", extended_step, self_range_inclusive_number, result);
+            }
+            result
         }
     }
     fn extend_step(step: Self::Step) -> Self::ExtendedStep {
@@ -474,11 +513,24 @@ impl IteratorOps for i64 {
     fn to_extended_step(self) -> Self::ExtendedStep {
         self as Self::ExtendedStep
     }
-    fn from_extended_step(step: Self::ExtendedStep) -> Self {
-        if let Some(result) = i64::from_i128(step) {
+    fn from_extended_step(extended_step: Self::ExtendedStep) -> Self {
+        if let Some(result) = Self::from_i128(extended_step) {
+            if DEBUG_PRINT {
+                println!("From extended step {} {}", extended_step, result);
+            }
             result
         } else {
-            0
+            let self_range_inclusive_number = 1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
+            let result =
+            if extended_step > Self::MAX as Self::ExtendedStep {
+                (extended_step - self_range_inclusive_number) as Self
+            } else { 
+                (self_range_inclusive_number + extended_step) as Self
+            };            
+            if DEBUG_PRINT || ERROR_PRINT {
+                println!("From extended step overflow {} adjust with {} as {}", extended_step, self_range_inclusive_number, result);
+            }
+            result
         }
     }
     fn extend_step(step: Self::Step) -> Self::ExtendedStep {

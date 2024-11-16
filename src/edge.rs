@@ -51,7 +51,6 @@ fn get_range_begin_mark_char(inclusive: bool) -> char {
 
 use std::any::type_name;
 use std::ops::Rem;
-use num::zero;
 
 fn int_edge_with_step<T: crate::basic_range::IteratorOps>(inclusive: bool, step: T::Step) {
     let int_min: T = T::min();
@@ -200,6 +199,16 @@ fn test_u8_exclusive_edge_on_step() {
 }
 
 #[test]
+fn test_u8_exclusive_edge_min_step() {
+    int_edge_with_step::<u8>(false, i8::MIN);
+}
+
+#[test]
+fn test_u8_exclusive_edge_max_step() {
+    int_edge_with_step::<u8>(false, i8::MAX);
+}
+
+#[test]
 fn test_u8_inclusive_edge() {
     int_edge_with_step::<u8>(true, 1);
 
@@ -218,6 +227,16 @@ fn test_u8_inclusive_edge_on_step() {
 }
 
 #[test]
+fn test_u8_inclusive_edge_min_step() {
+    int_edge_with_step::<u8>(true, i8::MIN);
+}
+
+#[test]
+fn test_u8_inclusive_edge_max_step() {
+    int_edge_with_step::<u8>(true, i8::MAX);
+}
+
+#[test]
 fn test_i16_exclusive_edge() {
     int_edge_with_step::<i16>(false, 1);
 }
@@ -230,6 +249,16 @@ fn test_i16_exclusive_edge_not_on_step() {
 #[test]
 fn test_i16_exclusive_edge_on_step() {
     int_edge_with_step::<i16>(false, 5);
+}
+
+#[test]
+fn test_i16_exclusive_edge_min_step() {
+    int_edge_with_step::<i16>(false, i16::MIN);
+}
+
+#[test]
+fn test_i16_exclusive_edge_max_step() {
+    int_edge_with_step::<i16>(false, i16::MAX);
 }
 
 #[test]
@@ -248,6 +277,16 @@ fn test_i16_inclusive_edge_on_step() {
 }
 
 #[test]
+fn test_i16_inclusive_edge_min_step() {
+    int_edge_with_step::<i16>(true, i16::MIN);
+}
+
+#[test]
+fn test_i16_inclusive_edge_max_step() {
+    int_edge_with_step::<i16>(true, i16::MAX);
+}
+
+#[test]
 fn test_u16_exclusive_edge() {
     int_edge_with_step::<u16>(false, 1);
 }
@@ -260,6 +299,16 @@ fn test_u16_exclusive_edge_not_on_step() {
 #[test]
 fn test_u16_exclusive_edge_on_step() {
     int_edge_with_step::<u16>(false, 5);
+}
+
+#[test]
+fn test_u16_exclusive_edge_min_step() {
+    int_edge_with_step::<u16>(false, i16::MIN);
+}
+
+#[test]
+fn test_u16_exclusive_edge_max_step() {
+    int_edge_with_step::<u16>(false, i16::MAX);
 }
 
 #[test]
@@ -279,6 +328,16 @@ fn test_u16_inclusive_edge_on_step() {
 }
 
 #[test]
+fn test_u16_inclusive_edge_min_step() {
+    int_edge_with_step::<u16>(true, i16::MIN);
+}
+
+#[test]
+fn test_u16_inclusive_edge_max_step() {
+    int_edge_with_step::<u16>(true, i16::MAX);
+}
+
+#[test]
 fn test_i32_exclusive_edge() {
     int_edge_with_step::<i32>(false, 1 + i16::MAX as i32 - i16::MIN as i32);
 }
@@ -291,6 +350,81 @@ fn test_i32_exclusive_edge_not_on_step() {
 #[test]
 fn test_i32_exclusive_edge_on_step() {
     int_edge_with_step::<i32>(false, 5 + 1 + i16::MAX as i32 - i16::MIN as i32);
+}
+
+#[test]
+fn test_i32_exclusive_edge_min_step() {
+    int_edge_with_step::<i32>(false, i32::MIN);
+}
+
+#[test]
+fn test_i32_exclusive_edge_max_step() {
+    int_edge_with_step::<i32>(false, i32::MAX);
+}
+
+#[test]
+fn test_i32_inclusive_edge() {
+    int_edge_with_step::<i32>(true, 1 + i16::MAX as i32 - i16::MIN as i32);
+}
+
+#[test]
+fn test_i32_inclusive_edge_not_on_step() {
+    int_edge_with_step::<i32>(true, 31 + i16::MAX as i32 - i16::MIN as i32);
+}
+
+#[test]
+fn test_i32_inclusive_edge_on_step() {
+    int_edge_with_step::<i32>(true, 5 + 1 + i16::MAX as i32 - i16::MIN as i32);
+}
+
+#[test]
+fn test_i32_inclusive_edge_min_step() {
+    int_edge_with_step::<i32>(true, i32::MIN);
+}
+
+#[test]
+fn test_i32_inclusive_edge_max_step() {
+    int_edge_with_step::<i32>(true, i32::MAX);
+}
+
+#[test]
+fn test_u32_exclusive_edge() {
+    int_edge_with_step::<u32>(false, 1 + i16::MAX as i32 - i16::MIN as i32);
+}
+
+#[test]
+fn test_u32_exclusive_edge_not_on_step() {
+    int_edge_with_step::<u32>(false, 31 + i16::MAX as i32 - i16::MIN as i32);
+}
+
+#[test]
+fn test_u32_exclusive_edge_on_step() {
+    int_edge_with_step::<u32>(false, 5 + 1 + i16::MAX as i32 - i16::MIN as i32);
+}
+
+#[test]
+fn test_u32_exclusive_edge_min_step() {
+    int_edge_with_step::<u32>(false, i32::MIN);
+}
+
+#[test]
+fn test_u32_exclusive_edge_max_step() {
+    int_edge_with_step::<u32>(false, i32::MAX);
+}
+
+#[test]
+fn test_u32_inclusive_edge() {
+    int_edge_with_step::<u32>(true, 1 + i16::MAX as i32 - i16::MIN as i32);
+}
+
+#[test]
+fn test_u32_inclusive_edge_not_on_step() {
+    int_edge_with_step::<u32>(true, 31 + i16::MAX as i32 - i16::MIN as i32);
+}
+
+#[test]
+fn test_u32_inclusive_edge_on_step() {
+    int_edge_with_step::<u32>(true, 5 + 1 + i16::MAX as i32 - i16::MIN as i32);
 }
 
 }
