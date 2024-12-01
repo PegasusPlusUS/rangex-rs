@@ -121,6 +121,9 @@ fn int_edge_with_step<T: crate::basic_range::IteratorOps>(inclusive: bool, step:
             if inclusive || !on_step {
                 assert!(i <= steps.to_usize() + 2);
             } else {
+                if i == steps.to_usize() {
+                    println!("i: {}, steps:{}, {}", i, steps, steps.to_usize());
+                }
                 assert!(i < steps.to_usize());
             }
         }

@@ -2,7 +2,7 @@ use std::mem;
 use std::ops::*;
 use num::{Num, Zero, One, FromPrimitive};
 
-pub const DEBUG_PRINT: bool = false;
+pub const DEBUG_PRINT: bool = true;
 pub const ERROR_PRINT: bool = true;
 
 /// StepOps describes trait for 'step' in 'for' loop
