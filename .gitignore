@@ -1,3 +1,4 @@
 proptest-regressions/
 target/
 .idea/
+Cargo.lock
