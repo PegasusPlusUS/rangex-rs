@@ -18,3 +18,14 @@ path = "examples/range_demo.rs"
 [dependencies]
 num = "0.4.3"
 num-traits = "0.2.19"
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bench]]
+name = "basic"
+harness = false
+
+[[bench]]
+name = "indexed"
+harness = false

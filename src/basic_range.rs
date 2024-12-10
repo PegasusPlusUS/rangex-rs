@@ -1,28 +1,32 @@
+use num::{FromPrimitive, Num, One, Zero};
 use std::mem;
 use std::ops::*;
-use num::{Num, Zero, One, FromPrimitive};
 
-pub const DEBUG_PRINT: bool = true;
+pub const DEBUG_PRINT: bool = false;
 pub const ERROR_PRINT: bool = true;
 
 /// StepOps describes trait for 'step' in 'for' loop
-pub trait StepOps:
-    Num
-    + PartialOrd
-    + Copy
-    + std::fmt::Debug
-    + std::fmt::Display
-{
+pub trait StepOps: Num + PartialOrd + Copy + std::fmt::Debug + std::fmt::Display {
     /// min value of step
     fn min() -> Self;
     /// max value of step
     fn max() -> Self;
     /// -1 value of step
-    fn negative_one() -> Self { Self::zero() - Self::one() }
+    fn negative_one() -> Self {
+        Self::zero() - Self::one()
+    }
     /// floor for float, or same for int
-    fn floor(self) -> Self { self }
+    fn floor(self) -> Self {
+        self
+    }
     /// abs value
-    fn abs(self) -> Self { if self < Self::zero() { Self::zero() - self } else { self } }
+    fn abs(self) -> Self {
+        if self < Self::zero() {
+            Self::zero() - self
+        } else {
+            self
+        }
+    }
     // Convert to usize type
     fn to_usize(self) -> usize;
 }
@@ -140,13 +144,7 @@ impl StepOps for f64 {
 // }
 
 /// IteratorOps describes trait for 'from'/'to' in 'for' loop
-pub trait IteratorOps:
-    Num
-    + PartialOrd
-    + Copy
-    + std::fmt::Debug
-    + std::fmt::Display
-{
+pub trait IteratorOps: Num + PartialOrd + Copy + std::fmt::Debug + std::fmt::Display {
     /// Step is the type for 'step', signed counterpart of 'from'/'to
     type Step: StepOps;
     type ExtendedStep: StepOps;
@@ -207,15 +205,18 @@ impl IteratorOps for u8 {
             }
             result
         } else {
-            let self_range_inclusive_number = 1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
-            let result =
-            if extended_step > Self::MAX as Self::ExtendedStep {
+            let self_range_inclusive_number =
+                1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
+            let result = if extended_step > Self::MAX as Self::ExtendedStep {
                 (extended_step - self_range_inclusive_number) as Self
-            } else { 
+            } else {
                 (self_range_inclusive_number + extended_step) as Self
-            };            
+            };
             if DEBUG_PRINT || ERROR_PRINT {
-                println!("From extended step overflow {} adjust with {} as {}", extended_step, self_range_inclusive_number, result);
+                println!(
+                    "From extended step overflow {} adjust with {} as {}",
+                    extended_step, self_range_inclusive_number, result
+                );
             }
             result
         }
@@ -253,15 +254,18 @@ impl IteratorOps for i8 {
             }
             result
         } else {
-            let self_range_inclusive_number = 1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
-            let result =
-            if extended_step > Self::MAX as Self::ExtendedStep {
+            let self_range_inclusive_number =
+                1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
+            let result = if extended_step > Self::MAX as Self::ExtendedStep {
                 (extended_step - self_range_inclusive_number) as Self
-            } else { 
+            } else {
                 (self_range_inclusive_number + extended_step) as Self
-            };            
+            };
             if DEBUG_PRINT || ERROR_PRINT {
-                println!("From extended step overflow {} adjust with {} as {}", extended_step, self_range_inclusive_number, result);
+                println!(
+                    "From extended step overflow {} adjust with {} as {}",
+                    extended_step, self_range_inclusive_number, result
+                );
             }
             result
         }
@@ -299,15 +303,18 @@ impl IteratorOps for u16 {
             }
             result
         } else {
-            let self_range_inclusive_number = 1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
-            let result =
-            if extended_step > Self::MAX as Self::ExtendedStep {
+            let self_range_inclusive_number =
+                1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
+            let result = if extended_step > Self::MAX as Self::ExtendedStep {
                 (extended_step - self_range_inclusive_number) as Self
-            } else { 
+            } else {
                 (self_range_inclusive_number + extended_step) as Self
-            };            
+            };
             if DEBUG_PRINT || ERROR_PRINT {
-                println!("From extended step overflow {} adjust with {} as {}", extended_step, self_range_inclusive_number, result);
+                println!(
+                    "From extended step overflow {} adjust with {} as {}",
+                    extended_step, self_range_inclusive_number, result
+                );
             }
             result
         }
@@ -345,15 +352,18 @@ impl IteratorOps for i16 {
             }
             result
         } else {
-            let self_range_inclusive_number = 1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
-            let result =
-            if extended_step > Self::MAX as Self::ExtendedStep {
+            let self_range_inclusive_number =
+                1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
+            let result = if extended_step > Self::MAX as Self::ExtendedStep {
                 (extended_step - self_range_inclusive_number) as Self
-            } else { 
+            } else {
                 (self_range_inclusive_number + extended_step) as Self
-            };            
+            };
             if DEBUG_PRINT || ERROR_PRINT {
-                println!("From extended step overflow {} adjust with {} as {}", extended_step, self_range_inclusive_number, result);
+                println!(
+                    "From extended step overflow {} adjust with {} as {}",
+                    extended_step, self_range_inclusive_number, result
+                );
             }
             result
         }
@@ -391,15 +401,18 @@ impl IteratorOps for u32 {
             }
             result
         } else {
-            let self_range_inclusive_number = 1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
-            let result =
-            if extended_step > Self::MAX as Self::ExtendedStep {
+            let self_range_inclusive_number =
+                1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
+            let result = if extended_step > Self::MAX as Self::ExtendedStep {
                 (extended_step - self_range_inclusive_number) as Self
-            } else { 
+            } else {
                 (self_range_inclusive_number + extended_step) as Self
-            };            
+            };
             if DEBUG_PRINT || ERROR_PRINT {
-                println!("From extended step overflow {} adjust with {} as {}", extended_step, self_range_inclusive_number, result);
+                println!(
+                    "From extended step overflow {} adjust with {} as {}",
+                    extended_step, self_range_inclusive_number, result
+                );
             }
             result
         }
@@ -437,15 +450,18 @@ impl IteratorOps for i32 {
             }
             result
         } else {
-            let self_range_inclusive_number = 1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
-            let result =
-            if extended_step > Self::MAX as Self::ExtendedStep {
+            let self_range_inclusive_number =
+                1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
+            let result = if extended_step > Self::MAX as Self::ExtendedStep {
                 (extended_step - self_range_inclusive_number) as Self
-            } else { 
+            } else {
                 (self_range_inclusive_number + extended_step) as Self
-            };            
+            };
             if DEBUG_PRINT || ERROR_PRINT {
-                println!("From extended step overflow {} adjust with {} as {}", extended_step, self_range_inclusive_number, result);
+                println!(
+                    "From extended step overflow {} adjust with {} as {}",
+                    extended_step, self_range_inclusive_number, result
+                );
             }
             result
         }
@@ -483,15 +499,18 @@ impl IteratorOps for u64 {
             }
             result
         } else {
-            let self_range_inclusive_number = 1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
-            let result =
-            if extended_step > Self::MAX as Self::ExtendedStep {
+            let self_range_inclusive_number =
+                1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
+            let result = if extended_step > Self::MAX as Self::ExtendedStep {
                 (extended_step - self_range_inclusive_number) as Self
-            } else { 
+            } else {
                 (self_range_inclusive_number + extended_step) as Self
-            };            
+            };
             if DEBUG_PRINT || ERROR_PRINT {
-                println!("From extended step overflow {} adjust with {} as {}", extended_step, self_range_inclusive_number, result);
+                println!(
+                    "From extended step overflow {} adjust with {} as {}",
+                    extended_step, self_range_inclusive_number, result
+                );
             }
             result
         }
@@ -529,15 +548,18 @@ impl IteratorOps for i64 {
             }
             result
         } else {
-            let self_range_inclusive_number = 1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
-            let result =
-            if extended_step > Self::MAX as Self::ExtendedStep {
+            let self_range_inclusive_number =
+                1 + Self::MAX as Self::ExtendedStep - Self::MIN as Self::ExtendedStep;
+            let result = if extended_step > Self::MAX as Self::ExtendedStep {
                 (extended_step - self_range_inclusive_number) as Self
-            } else { 
+            } else {
                 (self_range_inclusive_number + extended_step) as Self
-            };            
+            };
             if DEBUG_PRINT || ERROR_PRINT {
-                println!("From extended step overflow {} adjust with {} as {}", extended_step, self_range_inclusive_number, result);
+                println!(
+                    "From extended step overflow {} adjust with {} as {}",
+                    extended_step, self_range_inclusive_number, result
+                );
             }
             result
         }
@@ -659,7 +681,7 @@ impl IteratorOps for isize {
     fn from_extended_step(extended_step: Self::ExtendedStep) -> Self {
         extended_step
     }
-    
+
     fn extend_step(step: Self::Step) -> Self::ExtendedStep {
         step as Self::ExtendedStep
     }
@@ -762,7 +784,7 @@ where
 
 impl<T> BasicRange<T>
 where
-    T: IteratorOps
+    T: IteratorOps,
 {
     pub fn new(start: T, mut end: T, step: T::Step, inclusive: bool) -> Self {
         if step == T::Step::zero() {
@@ -770,8 +792,8 @@ where
         }
 
         let mut on_step = true;
-        let invalid_range = (start < end && step < T::Step::zero()) ||
-            (start > end && step > T::Step::zero());
+        let invalid_range =
+            (start < end && step < T::Step::zero()) || (start > end && step > T::Step::zero());
 
         if !invalid_range {
             let range_size: T::ExtendedStep = if step > T::Step::zero() {
@@ -784,7 +806,13 @@ where
                 if step < T::Step::negative_one() || T::Step::one() < step {
                     (end, on_step) = Self::calculate_stop_and_steps(start, end, range_size, step);
                     if DEBUG_PRINT {
-                        println!("end is {}, zero is {}, step is {}, on_step is {}", end, T::Step::zero(), step, on_step);
+                        println!(
+                            "end is {}, zero is {}, step is {}, on_step is {}",
+                            end,
+                            T::Step::zero(),
+                            step,
+                            on_step
+                        );
                     }
                 } else {
                     on_step = true;
@@ -793,40 +821,77 @@ where
 
             if inclusive || !on_step {
                 if DEBUG_PRINT {
-                    println!("end is {}, zero is {}, step is {}, on_step is {}", end, T::Step::zero(), step, on_step);
+                    println!(
+                        "end is {}, zero is {}, step is {}, on_step is {}",
+                        end,
+                        T::Step::zero(),
+                        step,
+                        on_step
+                    );
                 }
                 end.next(step);
                 if DEBUG_PRINT {
-                    println!("end is {}, zero is {}, step is {}, on_step is {}", end, T::Step::zero(), step, on_step);
+                    println!(
+                        "end is {}, zero is {}, step is {}, on_step is {}",
+                        end,
+                        T::Step::zero(),
+                        step,
+                        on_step
+                    );
                 }
             }
         }
         if DEBUG_PRINT {
-            println!("invalid_range: {}, end: {}, step: {}, inclusive: {}, on_step: {}", invalid_range, end, step, inclusive, on_step);
+            println!(
+                "invalid_range: {}, end: {}, step: {}, inclusive: {}, on_step: {}",
+                invalid_range, end, step, inclusive, on_step
+            );
         }
-        BasicRange { start, end, step, inclusive_or_not_on_step: inclusive || !on_step, invalid_range }
+        BasicRange {
+            start,
+            end,
+            step,
+            inclusive_or_not_on_step: inclusive || !on_step,
+            invalid_range,
+        }
     }
 
-    fn calculate_stop_and_steps(start: T, end: T, range_size: T::ExtendedStep, step: T::Step) -> (T, bool)
+    fn calculate_stop_and_steps(
+        start: T,
+        end: T,
+        range_size: T::ExtendedStep,
+        step: T::Step,
+    ) -> (T, bool)
     where
-        T: IteratorOps
+        T: IteratorOps,
     {
         if DEBUG_PRINT {
-            println!("start {} end {} range_size {} step {}", start, end, range_size, step);
+            println!(
+                "start {} end {} range_size {} step {}",
+                start, end, range_size, step
+            );
         }
         let range_size_as_extended_step = range_size;
-        let positive_step :T::ExtendedStep = if step < T::Step::zero() { T::ExtendedStep::zero() - T::extend_step(step) } else { T::extend_step(step) };
+        let positive_step: T::ExtendedStep = if step < T::Step::zero() {
+            T::ExtendedStep::zero() - T::extend_step(step)
+        } else {
+            T::extend_step(step)
+        };
         let steps = (range_size_as_extended_step / positive_step).floor();
         if DEBUG_PRINT {
-            println!("range_size_as_extended_step {} steps {}", range_size_as_extended_step, steps);
+            println!(
+                "range_size_as_extended_step {} steps {}",
+                range_size_as_extended_step, steps
+            );
         }
         let on_step = T::ExtendedStep::zero() == range_size_as_extended_step.rem(positive_step);
         let new_range_size = steps * positive_step;
-        let new_end : T::ExtendedStep = start.to_extended_step() + if start < end {
-            new_range_size
-        } else {
-            T::ExtendedStep::zero() - new_range_size
-        };
+        let new_end: T::ExtendedStep = start.to_extended_step()
+            + if start < end {
+                new_range_size
+            } else {
+                T::ExtendedStep::zero() - new_range_size
+            };
         if DEBUG_PRINT {
             println!("new end {}", new_end);
         }
@@ -854,13 +919,19 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         if DEBUG_PRINT {
-            println!("Current {}, step {}, end {}", self.current, self.step, self.end);
+            println!(
+                "Current {}, step {}, end {}",
+                self.current, self.step, self.end
+            );
         }
         if self.invalid_range {
             None
         } else {
             if DEBUG_PRINT {
-                println!("Current {}, step {}, end {} inclusive or not on step {}", self.current, self.step, self.end, self.inclusive_or_not_on_step);
+                println!(
+                    "Current {}, step {}, end {} inclusive or not on step {}",
+                    self.current, self.step, self.end, self.inclusive_or_not_on_step
+                );
             }
             let stop = self.current == self.end;
 
@@ -869,7 +940,7 @@ where
                     if DEBUG_PRINT {
                         println!("Stop!");
                     }
-                    return None
+                    return None;
                 }
             } else {
                 self.inclusive_or_not_on_step = false;
@@ -880,9 +951,17 @@ where
             // self.curr = @as(T, @bitCast(result[0]));
 
             let result = self.current;
-            self.current = T::from_extended_step(self.current.to_extended_step() + T::extend_step(self.step));
+            self.current =
+                T::from_extended_step(self.current.to_extended_step() + T::extend_step(self.step));
             if DEBUG_PRINT {
-                println!("Current {}, step {}, end {}, current + step {}/{}", result, self.step, self.end, result.to_extended_step() + T::extend_step(self.step), self.current);
+                println!(
+                    "Current {}, step {}, end {}, current + step {}/{}",
+                    result,
+                    self.step,
+                    self.end,
+                    result.to_extended_step() + T::extend_step(self.step),
+                    self.current
+                );
             }
             Some(result)
         }
@@ -1059,11 +1138,25 @@ mod main_test {
             for inclusive in 0..=1 {
                 let expect_none = vec![];
                 let expect_once = vec![0];
-                verify_range(if inclusive > 0 { expect_once } else { expect_none }, BasicRange::new(0, 0, -2, inclusive > 0));
+                verify_range(
+                    if inclusive > 0 {
+                        expect_once
+                    } else {
+                        expect_none
+                    },
+                    BasicRange::new(0, 0, -2, inclusive > 0),
+                );
 
                 let expect_none = vec![];
                 let expect_once = vec![0];
-                verify_range(if inclusive > 0 { expect_once } else { expect_none }, BasicRange::new(0, 0, 2, inclusive > 0));
+                verify_range(
+                    if inclusive > 0 {
+                        expect_once
+                    } else {
+                        expect_none
+                    },
+                    BasicRange::new(0, 0, 2, inclusive > 0),
+                );
 
                 let expect = vec![];
                 verify_range(expect, BasicRange::new(3, 0, 1, inclusive > 0));
@@ -1077,11 +1170,25 @@ mod main_test {
             for inclusive in 0..=1 {
                 let expect_none = vec![];
                 let expect_once = vec![0.0];
-                verify_range(if inclusive > 0 { expect_once } else { expect_none }, BasicRange::new(0.0, 0.0, -2.0, inclusive > 0));
+                verify_range(
+                    if inclusive > 0 {
+                        expect_once
+                    } else {
+                        expect_none
+                    },
+                    BasicRange::new(0.0, 0.0, -2.0, inclusive > 0),
+                );
 
                 let expect_none = vec![];
                 let expect_once = vec![0.0];
-                verify_range(if inclusive > 0 { expect_once } else { expect_none }, BasicRange::new(0.0, 0.0, 2.0, inclusive > 0));
+                verify_range(
+                    if inclusive > 0 {
+                        expect_once
+                    } else {
+                        expect_none
+                    },
+                    BasicRange::new(0.0, 0.0, 2.0, inclusive > 0),
+                );
 
                 let expect = vec![];
                 verify_range(expect, BasicRange::new(3.0, 0.0, 1.0, inclusive > 0));
@@ -1152,11 +1259,17 @@ mod main_test {
         fn not_on_step_3_float() {
             for inclusive in 0..=1 {
                 let expect = vec![5.0, 3.0];
-                verify_range(expect, BasicRange::<f32>::new(5.0, 2.0, -2.0, inclusive > 0));
+                verify_range(
+                    expect,
+                    BasicRange::<f32>::new(5.0, 2.0, -2.0, inclusive > 0),
+                );
             }
             for inclusive in 0..=1 {
                 let expect = vec![5.0, 3.0];
-                verify_range(expect, BasicRange::<f64>::new(5.0, 2.0, -2.0, inclusive > 0));
+                verify_range(
+                    expect,
+                    BasicRange::<f64>::new(5.0, 2.0, -2.0, inclusive > 0),
+                );
             }
         }
         #[test]

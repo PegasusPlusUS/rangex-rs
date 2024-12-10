@@ -171,11 +171,25 @@ mod main_test {
         for inclusive in 0..=1 {
             let expect_none = vec![];
             let expect_once = vec![0];
-            verify_indexed_range(if inclusive > 0 { &expect_once } else { &expect_none }, IndexedRange::new(0, 0, -2, inclusive > 0));
+            verify_indexed_range(
+                if inclusive > 0 {
+                    &expect_once
+                } else {
+                    &expect_none
+                },
+                IndexedRange::new(0, 0, -2, inclusive > 0),
+            );
 
             let expect_none = vec![];
             let expect_once = vec![0];
-            verify_indexed_range(if inclusive > 0 { &expect_once } else { &expect_none }, IndexedRange::new(0, 0, 2, inclusive > 0));
+            verify_indexed_range(
+                if inclusive > 0 {
+                    &expect_once
+                } else {
+                    &expect_none
+                },
+                IndexedRange::new(0, 0, 2, inclusive > 0),
+            );
 
             let expect = vec![];
             verify_indexed_range(&expect, IndexedRange::new(3, 0, 1, inclusive > 0));
