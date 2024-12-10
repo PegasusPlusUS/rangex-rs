@@ -1,13 +1,13 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
 fn example_benchmark(c: &mut Criterion) {
-    c.bench_function("std range (1..=10000) .sum::<u16>()", |b| {
+    c.bench_function("std (1..=10000) .sum::<u16>()", |b| {
         b.iter(|| {
             // Code to benchmark
             (1..=10000).sum::<u16>()
         })
     });
-    c.bench_function("inclusive u16 range (1..=10000) for +=", |b| {
+    c.bench_function("inclusive u16 range 1, 10000 for +=", |b| {
         b.iter(|| {
             use rangex::basic_range::*;
             use rangex::*;
@@ -21,21 +21,38 @@ fn example_benchmark(c: &mut Criterion) {
             s
         })
     });
-    c.bench_function("inclusive u16 range (1..=10000).sum::<u16>()", |b| {
-        b.iter(|| {
-            use rangex::basic_range::*;
-            use rangex::*;
+    c.bench_function(
+        "inclusive u16 range 1, 10000 into_iter().sum::<u16>()",
+        |b| {
+            b.iter(|| {
+                use rangex::basic_range::*;
+                use rangex::*;
 
-            // Code to benchmark
-            let r = range_inclusive!(u16, 1, 10000, 1);
-            r.into_iter().sum::<u16>()
-        })
-    });
+                // Code to benchmark
+                let r = range_inclusive!(u16, 1, 10000, 1);
+                r.into_iter().sum::<u16>()
+            })
+        },
+    );
     c.bench_function("std range (1..=10000).sum::<u64>() in black_box", |b| {
         b.iter(|| {
             let _result = black_box((1..=10000).sum::<u64>());
         })
     });
+    c.bench_function(
+        "inclusive u16 range 1, 10000 into_iter().sum::<u64>() in black_box",
+        |b| {
+            b.iter(|| {
+                use rangex::basic_range::*;
+                use rangex::*;
+
+                let _result = black_box(
+                    // Code to benchmark
+                    range_inclusive!(u16, 1, 10000, 1).into_iter().sum::<u16>(),
+                );
+            })
+        },
+    );
 }
 
 fn custom_criterion() -> Criterion {
